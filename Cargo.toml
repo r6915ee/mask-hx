@@ -8,6 +8,10 @@ edition = "2024"
 [dependencies]
 clap = { version = "4.5.42", features = ["derive"] }
 
+[lib]
+name = "libmask"
+path = "src/lib.rs"
+
 [[bin]]
-name = "mask"
+name = "mask-hx"
 path = "src/main.rs"

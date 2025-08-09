@@ -1,41 +1,19 @@
+//! A program made to handle [Haxe](https://haxe.org) versions.
+//!
+//! `mask-hx` aims to simplify [Haxe](https://haxe.org) version
+//! management. [Haxe](https://haxe.org), unlike most other toolchains,
+//! does not play well with projects as a result of its
+//! versioning mechanism including syntax changes. `mask-hx`
+//! aims to simplify the process of version management with
+//! [Haxe](https://haxe.org).
+
 use std::io::Error;
 use std::process;
 
 use clap::{Parser, Subcommand};
 
-/// Print to the standard output.
-///
-/// This macro functions identically to the [println] macro, except
-/// it compares a required [OutputLevel] and the current [OutputLevel] to
-/// see if the latter is greater or equal to the required output level,
-/// and only printing if this comparison succeeds.
-///
-/// Additionally, `text` can be an expression. This is useful for concatenation
-/// reasons, but more importantly, that means that the [format] macro can
-/// be used as the value.
-///
-/// # Examples
-///
-/// ```
-/// let current_level: OutputLevel = OutputLevel::Normal;
-///
-/// print_to_stdout!(OutputLevel::Normal, current_level, "The current output level is greater than the required output level");
-/// ```
-macro_rules! print_to_stdout {
-    ($required_level: expr, $current_level: expr, $text: literal) => {
-        if $current_level as u8 >= $required_level as u8 {
-            println!("{}", $text);
-        }
-    };
-
-    ($required_level: expr, $current_level: expr, $text: expr) => {
-        if $current_level as u8 >= $required_level as u8 {
-            println!("{}", $text);
-        }
-    };
-}
-
-mod fetcher;
+use libmask::OutputLevel;
+use libmask::fetcher;
 
 /// Defines global command line flags.
 ///
@@ -67,7 +45,7 @@ enum Commands {
     ///
     /// This creates a .mask file if it isn't present and
     /// changes it to specify a valid Haxe version. If the specified
-    /// Haxe version isn't installed, then `mask` will install it.
+    /// Haxe version isn't installed, then `mask-hx` will install it.
     ///
     /// If the Haxe version specified isn't valid, then the subcommand
     /// will fail.
@@ -77,28 +55,12 @@ enum Commands {
     },
 }
 
-/// Defines the final output of `mask`.
+/// Defines the final output of `mask-hx`.
 struct CommandResult {
-    /// The message to print when `mask` finishes.
+    /// The message to print when `mask-hx` finishes.
     message: String,
-    /// The exit status code of `mask`.
+    /// The exit status code of `mask-hx`.
     code: i32,
-}
-
-/// Defines the "output level" of `mask`.
-///
-/// [OutputLevel] is useful to define how the program should
-/// print to the standard output. It is ignored in some cases, but during
-/// operations it is advised to use the [print_to_stdout]
-/// macro to take full advantage of this enum.
-#[derive(Clone)]
-enum OutputLevel {
-    /// Only the bare minimum will be printed.
-    Quiet,
-    /// Some printing will be performed. However, it doesn't expose certain information.
-    Normal,
-    /// Print everything that is thrown.
-    Verbose,
 }
 
 /// The entry point of the program.
