@@ -4,6 +4,7 @@ description = "Generic Haxe version manager"
 version = "0.1.0"
 license-file = "LICENSE"
 edition = "2024"
+repository = "https://github.com/r6915ee/mask-hx"
 
 [dependencies]
 clap = { version = "4.5.42", features = ["derive"] }
