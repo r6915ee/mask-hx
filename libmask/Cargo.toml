@@ -2,6 +2,7 @@
 name = "libmask"
 description = "Haxe version management library"
 edition = "2024"
+categories = ["development-tools", "config"]
 version = "1.0.0"
 
 [lib]
