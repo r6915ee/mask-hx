@@ -12,8 +12,53 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 
-use libmask::OutputLevel;
 use libmask::fetcher;
+
+/// Defines the "output level" of various functions.
+///
+/// [OutputLevel] is useful to define how the program should
+/// print to the standard output. It is ignored in some cases.
+#[derive(Clone)]
+enum OutputLevel {
+    /// Only the bare minimum will be printed.
+    Quiet,
+    /// Some printing will be performed. However, it doesn't expose certain information.
+    Normal,
+    /// Print everything that is thrown.
+    Verbose,
+}
+
+/// Print to the standard output.
+///
+/// This macro functions identically to the [println] macro, except
+/// it compares a required [OutputLevel] and the current [OutputLevel] to
+/// see if the latter is greater or equal to the required output level,
+/// and only printing if this comparison succeeds.
+///
+/// Additionally, `text` can be an expression. This is useful for concatenation
+/// reasons, but more importantly, that means that the [format] macro can
+/// be used as the value.
+///
+/// # Examples
+///
+/// ```
+/// let current_level: OutputLevel = OutputLevel::Normal;
+///
+/// print_to_stdout!(OutputLevel::Normal, current_level, "The current output level is greater than the required output level");
+/// ```
+macro_rules! print_to_stdout {
+    ($required_level: expr, $current_level: expr, $text: literal) => {
+        if $current_level as u8 >= $required_level as u8 {
+            println!("{}", $text);
+        }
+    };
+
+    ($required_level: expr, $current_level: expr, $text: expr) => {
+        if $current_level as u8 >= $required_level as u8 {
+            println!("{}", $text);
+        }
+    };
+}
 
 /// Defines global command line flags.
 ///
@@ -41,6 +86,15 @@ struct Cli {
 /// arguments are displayed using [clap].
 #[derive(Subcommand)]
 enum Commands {
+    /// Check if a Haxe version exists
+    ///
+    /// This command is useful for making sure the `mask-hx` recognizes
+    /// your Haxe versions.
+    Check {
+        /// The Haxe version to check
+        haxe_version: String,
+    },
+
     /// Switch between Haxe versions
     ///
     /// This creates a .mask file if it isn't present and
@@ -77,9 +131,36 @@ fn main() {
     let result: CommandResult;
 
     match &cli.command {
+        Some(Commands::Check { haxe_version }) => {
+            match fetcher::is_haxe_version_valid(haxe_version) {
+                Ok(check) => {
+                    result = CommandResult {
+                        message: match check {
+                            true => {
+                                format!("Haxe version {} is valid and ready to use", haxe_version)
+                            }
+                            false => format!("Haxe version {} is not valid", haxe_version),
+                        },
+                        code: 0,
+                    }
+                }
+                Err(e) => {
+                    result = CommandResult {
+                        message: format!("io error: {}", e),
+                        code: 1,
+                    }
+                }
+            }
+        }
         Some(Commands::Switch { haxe_version }) => {
+            print_to_stdout!(
+                OutputLevel::Normal,
+                output_level.clone(),
+                format!("Switching to Haxe version {}...", haxe_version)
+            );
+
             let haxe_version_valid: Result<bool, Error> =
-                fetcher::is_haxe_version_valid(output_level, haxe_version);
+                fetcher::is_haxe_version_valid(haxe_version);
 
             match haxe_version_valid {
                 Ok(check) => {

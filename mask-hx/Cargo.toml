@@ -1,0 +1,15 @@
+[package]
+name = "mask-hx"
+description = "Generic Haxe version manager"
+edition = "2024"
+version = "1.0.0"
+authors = ["r6915ee"]
+categories = ["command-line-utilities", "config", "development-tools"]
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.5.42", features = ["derive"] }
+libmask = { version = "1.0.0", path = "../libmask" }
+
+[dev-dependencies]
+libmask = { version = "1.0.0", path = "../libmask" }
