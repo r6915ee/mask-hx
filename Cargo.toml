@@ -1,0 +1,13 @@
+[package]
+name = "mask-hx"
+description = "Generic Haxe version manager"
+version = "0.1.0"
+license-file = "LICENSE"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.42", features = ["derive"] }
+
+[[bin]]
+name = "mask"
+path = "src/main.rs"
