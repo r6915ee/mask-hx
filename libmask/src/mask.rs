@@ -21,7 +21,7 @@
 pub mod config;
 /// Handles Haxe versions.
 ///
-/// [fetcher] is used for a lot of operations related to Haxe versions.
-/// It is able to validate the existence of Haxe versions, pass their
+/// [fetcher] is used for a lot of operations related to [Haxe](https://haxe.org)
+/// versions. It is able to validate the existence of Haxe versions, pass their
 /// data, and more.
 pub mod fetcher;
