@@ -9,55 +9,9 @@
 
 use std::process;
 
-use clap::{ArgAction, ArgMatches, Command, arg, command};
+use clap::{ArgMatches, Command, arg, command};
 
 use libmask::{config, fetcher};
-
-/// Defines the "output level" of various functions.
-///
-/// [OutputLevel] is useful to define how the program should
-/// print to the standard output. It is ignored in some cases.
-#[derive(Clone)]
-enum OutputLevel {
-    /// Only the bare minimum will be printed.
-    Quiet,
-    /// Some printing will be performed. However, it doesn't expose certain information.
-    Normal,
-    /// Print everything that is thrown.
-    Verbose,
-}
-
-/// Print to the standard output.
-///
-/// This macro functions identically to the [println] macro, except
-/// it compares a required [OutputLevel] and the current [OutputLevel] to
-/// see if the latter is greater or equal to the required output level,
-/// and only printing if this comparison succeeds.
-///
-/// Additionally, `text` can be an expression. This is useful for concatenation
-/// reasons, but more importantly, that means that the [format] macro can
-/// be used as the value.
-///
-/// # Examples
-///
-/// ```
-/// let current_level: OutputLevel = OutputLevel::Normal;
-///
-/// print_to_stdout!(OutputLevel::Normal, current_level, "The current output level is greater than the required output level");
-/// ```
-macro_rules! print_to_stdout {
-    ($required_level: expr, $current_level: expr, $text: literal) => {
-        if $current_level as u8 >= $required_level as u8 {
-            println!("{}", $text);
-        }
-    };
-
-    ($required_level: expr, $current_level: expr, $text: expr) => {
-        if $current_level as u8 >= $required_level as u8 {
-            println!("{}", $text);
-        }
-    };
-}
 
 /// Defines the final output of `mask-hx`.
 struct CommandResult {
@@ -70,8 +24,6 @@ struct CommandResult {
 /// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
     command!()
-        .arg(arg!(-q --quiet "Enable quiet output"))
-        .arg(arg!(-v --verbose "Enable verbose output"))
         .subcommand(
             Command::new("check")
                 .about("Checks whether or not a Haxe version is installed")
@@ -105,14 +57,6 @@ fn handle_commands() -> ArgMatches {
 /// This handles the arguments, as well as how the program should exit.
 fn main() {
     let matches: ArgMatches = handle_commands();
-
-    let output_level: OutputLevel =
-        match matches.get_flag("verbose") as i8 - matches.get_flag("quiet") as i8 {
-            -1 => OutputLevel::Quiet,
-            0 => OutputLevel::Normal,
-            1 => OutputLevel::Verbose,
-            _ => OutputLevel::Quiet,
-        };
 
     let result: CommandResult;
 
