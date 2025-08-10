@@ -99,16 +99,17 @@ enum Commands {
     /// Configurations are as simple as defining a Haxe version.
     /// Configuration files are named `.mask` files, and are
     /// typically hidden on UNIX-based systems.
+    ///
+    /// A configuration file can be created using `mask-hx switch
+    /// version`, with version being the Haxe version, as long as
+    /// it's installed.
     Config {},
 
     /// Switch between Haxe versions
     ///
     /// This creates a .mask file if it isn't present and
     /// changes it to specify a valid Haxe version. If the specified
-    /// Haxe version isn't installed, then `mask-hx` will install it.
-    ///
-    /// If the Haxe version specified isn't valid, then the subcommand
-    /// will fail.
+    /// Haxe version isn't installed, then the subcommand will fail.
     Switch {
         /// The Haxe version to switch to
         haxe_version: String,
