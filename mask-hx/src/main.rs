@@ -191,7 +191,7 @@ fn main() {
                 }
                 Err(e) => {
                     result = CommandResult {
-                        message: format!("bad tom error: {}", e),
+                        message: format!("check error: {}", e),
                         code: 1,
                     }
                 }
