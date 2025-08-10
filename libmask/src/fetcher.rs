@@ -18,7 +18,6 @@ pub fn haxe_path(version: &str) -> Result<PathBuf, Error> {
             let mut buf: PathBuf = buf_val.clone();
 
             buf.push(".haxe");
-            println!("{}", version);
             buf.push(version);
 
             Ok(buf)
