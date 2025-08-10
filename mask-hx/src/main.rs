@@ -137,7 +137,7 @@ fn main() {
 
     let result: CommandResult = match &cli.command {
         Some(Commands::Check { haxe_version }) => {
-            match fetcher::is_haxe_version_valid(haxe_version) {
+            match fetcher::is_haxe_version_installed(haxe_version) {
                 Ok(check) => CommandResult {
                     message: match check {
                         true => {
@@ -153,7 +153,7 @@ fn main() {
                 },
             }
         }
-        Some(Commands::Config {}) => match fetcher::is_config_version_valid() {
+        Some(Commands::Config {}) => match fetcher::is_config_version_installed() {
             Ok(check) => CommandResult {
                 message: match check {
                     true => format!("configuration file is valid and ready to use"),
@@ -173,7 +173,7 @@ fn main() {
                 format!("Switching to Haxe version {}...", haxe_version)
             );
 
-            match fetcher::is_haxe_version_valid(haxe_version) {
+            match fetcher::is_haxe_version_installed(haxe_version) {
                 Ok(check) => CommandResult {
                     message: format!("{}", check),
                     code: 0,

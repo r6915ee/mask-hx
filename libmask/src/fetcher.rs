@@ -11,7 +11,7 @@ use crate::config;
 /// directory, and if it's found as a directory and the standard
 /// library is found under there, then [fetcher](..) will consider it to
 /// be valid.
-pub fn is_haxe_version_valid(version: &str) -> Result<bool, Error> {
+pub fn is_haxe_version_installed(version: &str) -> Result<bool, Error> {
     let home: Option<PathBuf> = std::env::home_dir();
 
     match home {
@@ -33,15 +33,15 @@ pub fn is_haxe_version_valid(version: &str) -> Result<bool, Error> {
 
 /// Checks if a configuration file's Haxe version is valid.
 ///
-/// This acts the same as [is_haxe_version_valid], but instead
+/// This acts the same as [is_haxe_version_installed], but instead
 /// reads the version from a configuration file using [config].
-pub fn is_config_version_valid() -> Result<bool, Error> {
+pub fn is_config_version_installed() -> Result<bool, Error> {
     match config::read() {
         Ok(config) => {
             let mut config: String = config;
             config.retain(|c| c != '\n');
 
-            is_haxe_version_valid(config.as_str())
+            is_haxe_version_installed(config.as_str())
         }
         Err(e) => Err(e),
     }
