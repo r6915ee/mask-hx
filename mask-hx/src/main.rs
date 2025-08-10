@@ -134,46 +134,37 @@ fn main() {
         1 => OutputLevel::Verbose,
         _ => OutputLevel::Quiet,
     };
-    let result: CommandResult;
 
-    match &cli.command {
+    let result: CommandResult = match &cli.command {
         Some(Commands::Check { haxe_version }) => {
             match fetcher::is_haxe_version_valid(haxe_version) {
-                Ok(check) => {
-                    result = CommandResult {
-                        message: match check {
-                            true => {
-                                format!("Haxe version {} is valid and ready to use", haxe_version)
-                            }
-                            false => format!("Haxe version {} is not valid", haxe_version),
-                        },
-                        code: 0,
-                    }
-                }
-                Err(e) => {
-                    result = CommandResult {
-                        message: format!("io error: {}", e),
-                        code: 1,
-                    }
-                }
+                Ok(check) => CommandResult {
+                    message: match check {
+                        true => {
+                            format!("Haxe version {} is valid and ready to use", haxe_version)
+                        }
+                        false => format!("Haxe version {} is not valid", haxe_version),
+                    },
+                    code: 0,
+                },
+                Err(e) => CommandResult {
+                    message: format!("io error: {}", e),
+                    code: 1,
+                },
             }
         }
         Some(Commands::Config {}) => match fetcher::is_config_valid() {
-            Ok(check) => {
-                result = CommandResult {
-                    message: match check {
-                        true => format!("configuration file is valid and ready to use"),
-                        false => format!("configuration file is not valid"),
-                    },
-                    code: 0,
-                }
-            }
-            Err(e) => {
-                result = CommandResult {
-                    message: format!("io error: {}", e),
-                    code: 1,
-                }
-            }
+            Ok(check) => CommandResult {
+                message: match check {
+                    true => format!("configuration file is valid and ready to use"),
+                    false => format!("configuration file is not valid"),
+                },
+                code: 0,
+            },
+            Err(e) => CommandResult {
+                message: format!("io error: {}", e),
+                code: 1,
+            },
         },
         Some(Commands::Switch { haxe_version }) => {
             print_to_stdout!(
@@ -183,29 +174,23 @@ fn main() {
             );
 
             match fetcher::is_haxe_version_valid(haxe_version) {
-                Ok(check) => {
-                    result = CommandResult {
-                        message: format!("{}", check),
-                        code: 0,
-                    }
-                }
-                Err(e) => {
-                    result = CommandResult {
-                        message: format!("check error: {}", e),
-                        code: 1,
-                    }
-                }
+                Ok(check) => CommandResult {
+                    message: format!("{}", check),
+                    code: 0,
+                },
+                Err(e) => CommandResult {
+                    message: format!("check error: {}", e),
+                    code: 1,
+                },
             }
         }
-        None => {
-            result = CommandResult {
-                message: String::from(
-                    "invalid subcommand; use 'mask help' or 'mask --help' to see a list of commands",
-                ),
-                code: 22,
-            }
-        }
-    }
+        None => CommandResult {
+            message: String::from(
+                "invalid subcommand; use 'mask help' or 'mask --help' to see a list of commands",
+            ),
+            code: 22,
+        },
+    };
 
     println!("mask: {}", result.message);
 
