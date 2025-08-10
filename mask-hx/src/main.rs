@@ -86,6 +86,16 @@ fn handle_commands() -> ArgMatches {
                     arg!([HAXE_VERSION] "Haxe version to check, if no configuration is specified"),
                 ),
         )
+        .subcommand(
+            Command::new("switch")
+                .about("Changes the configuration to use a different, valid Haxe version")
+                .long_about(
+                    "This initially checks the validity of a Haxe installation, \
+                    and then switches the configuration to use that specified Haxe \
+                    version.",
+                )
+                .arg(arg!(<HAXE_VERSION> "The Haxe version to switch to")),
+        )
         .get_matches()
 }
 
@@ -131,6 +141,34 @@ fn main() {
         } else {
             result = get_result(fetcher::is_config_version_installed());
         }
+    } else if let Some(matches) = matches.subcommand_matches("switch") {
+        result = match fetcher::is_haxe_version_installed(
+            matches.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
+        ) {
+            Ok(bool_opt) => match bool_opt {
+                true => {
+                    match config::write(matches.get_one::<String>("HAXE_VERSION").unwrap().clone())
+                    {
+                        Ok(_) => CommandResult {
+                            message: String::from("successfully switched Haxe version"),
+                            code: 0,
+                        },
+                        Err(e) => CommandResult {
+                            message: format!("io error: {}", e),
+                            code: 1,
+                        },
+                    }
+                }
+                false => CommandResult {
+                    message: String::from("Haxe version specified is not valid"),
+                    code: 1,
+                },
+            },
+            Err(e) => CommandResult {
+                message: format!("io error: {}", e),
+                code: 1,
+            },
+        };
     } else {
         result = CommandResult {
             message: String::from(
