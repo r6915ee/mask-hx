@@ -7,7 +7,6 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::io::Error;
 use std::process;
 
 use clap::{Parser, Subcommand};
@@ -183,10 +182,7 @@ fn main() {
                 format!("Switching to Haxe version {}...", haxe_version)
             );
 
-            let haxe_version_valid: Result<bool, Error> =
-                fetcher::is_haxe_version_valid(haxe_version);
-
-            match haxe_version_valid {
+            match fetcher::is_haxe_version_valid(haxe_version) {
                 Ok(check) => {
                     result = CommandResult {
                         message: format!("{}", check),
