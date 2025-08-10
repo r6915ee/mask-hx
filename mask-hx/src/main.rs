@@ -11,7 +11,7 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 
-use libmask::fetcher;
+use libmask::{config, fetcher};
 
 /// Defines the "output level" of various functions.
 ///
@@ -174,9 +174,27 @@ fn main() {
             );
 
             match fetcher::is_haxe_version_installed(haxe_version) {
-                Ok(check) => CommandResult {
-                    message: format!("{}", check),
-                    code: 0,
+                Ok(installed) => match installed {
+                    true => match config::write(haxe_version.clone()) {
+                        Ok(_) => CommandResult {
+                            message: format!(
+                                "successfully switched Haxe version to {}",
+                                haxe_version
+                            ),
+                            code: 0,
+                        },
+                        Err(e) => CommandResult {
+                            message: format!("write error: {}", e),
+                            code: 1,
+                        },
+                    },
+                    false => CommandResult {
+                        message: format!(
+                            "Haxe version {} is not installed, switch failed",
+                            haxe_version
+                        ),
+                        code: 1,
+                    },
                 },
                 Err(e) => CommandResult {
                     message: format!("check error: {}", e),
