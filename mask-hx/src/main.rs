@@ -204,7 +204,7 @@ fn main() {
         None => {
             result = CommandResult {
                 message: String::from(
-                    "Invalid subcommand; use 'mask help' or 'mask --help' to see a list of commands",
+                    "invalid subcommand; use 'mask help' or 'mask --help' to see a list of commands",
                 ),
                 code: 22,
             }
