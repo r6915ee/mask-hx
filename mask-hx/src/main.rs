@@ -9,7 +9,7 @@
 
 use std::process;
 
-use clap::{ArgAction, ArgMatches, Command, arg, command, crate_name, value_parser};
+use clap::{ArgAction, ArgMatches, Command, arg, command};
 
 use libmask::{config, fetcher};
 
