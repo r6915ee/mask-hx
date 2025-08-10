@@ -153,7 +153,7 @@ fn main() {
                 },
             }
         }
-        Some(Commands::Config {}) => match fetcher::is_config_valid() {
+        Some(Commands::Config {}) => match fetcher::is_config_version_valid() {
             Ok(check) => CommandResult {
                 message: match check {
                     true => format!("configuration file is valid and ready to use"),

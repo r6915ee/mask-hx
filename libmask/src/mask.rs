@@ -14,6 +14,11 @@
 //! use this library is `mask-hx`, which is its parent project,
 //! but `libmask` is usable by anyone.
 
+/// Handles configurations.
+///
+/// [config] is responsible for `.mask` configurations.
+/// It acts as an interface to them.
+pub mod config;
 /// Handles Haxe versions.
 ///
 /// [fetcher] is used for a lot of operations related to Haxe versions.
