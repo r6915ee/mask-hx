@@ -1,5 +1,6 @@
+use std::fs;
 use std::io::{Error, ErrorKind};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Checks if a Haxe version is installed.
 ///
@@ -26,5 +27,29 @@ pub fn is_haxe_version_valid(version: &str) -> Result<bool, Error> {
             ErrorKind::NotFound,
             "Home directory not accessible",
         )),
+    }
+}
+
+/// Checks if a configuration file is valid.
+///
+/// `.mask` files are the configuration files for `libmask`-based programs.
+/// They are as simple as a [Haxe](https://haxe.org) version definition.
+///
+/// What this program does is attempt check if a configuration file can be
+/// properly read, and then passes its data to [is_haxe_version_valid].
+pub fn is_config_valid() -> Result<bool, Error> {
+    let config_path: &Path = Path::new("./.mask");
+
+    match config_path.try_exists() {
+        Ok(_) => match fs::read_to_string(config_path) {
+            Ok(config) => {
+                let mut config: String = config;
+                config.retain(|c| c != '\n');
+
+                is_haxe_version_valid(config.as_str())
+            }
+            Err(e) => Err(Error::new(ErrorKind::InvalidData, e)),
+        },
+        Err(e) => Err(Error::new(ErrorKind::InvalidData, e)),
     }
 }

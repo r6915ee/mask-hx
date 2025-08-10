@@ -95,6 +95,13 @@ enum Commands {
         haxe_version: String,
     },
 
+    /// Check if a config in the working directory is valid
+    ///
+    /// Configurations are as simple as defining a Haxe version.
+    /// Configuration files are named `.mask` files, and are
+    /// typically hidden on UNIX-based systems.
+    Config {},
+
     /// Switch between Haxe versions
     ///
     /// This creates a .mask file if it isn't present and
@@ -152,6 +159,23 @@ fn main() {
                 }
             }
         }
+        Some(Commands::Config {}) => match fetcher::is_config_valid() {
+            Ok(check) => {
+                result = CommandResult {
+                    message: match check {
+                        true => format!("configuration file is valid and ready to use"),
+                        false => format!("configuration file is not valid"),
+                    },
+                    code: 0,
+                }
+            }
+            Err(e) => {
+                result = CommandResult {
+                    message: format!("io error: {}", e),
+                    code: 1,
+                }
+            }
+        },
         Some(Commands::Switch { haxe_version }) => {
             print_to_stdout!(
                 OutputLevel::Normal,
