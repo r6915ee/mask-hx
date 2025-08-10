@@ -70,12 +70,7 @@ pub fn is_haxe_version_installed(version: &str) -> Result<bool, Error> {
 /// reads the version from a configuration file using [config].
 pub fn is_config_version_installed() -> Result<bool, Error> {
     match config::read() {
-        Ok(config) => {
-            let mut config: String = config;
-            config.retain(|c| c != '\n');
-
-            is_haxe_version_installed(config.as_str())
-        }
+        Ok(config) => is_haxe_version_installed(config.as_str()),
         Err(e) => Err(e),
     }
 }

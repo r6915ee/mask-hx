@@ -18,7 +18,12 @@ pub fn path() -> Result<&'static Path, Error> {
 pub fn read() -> Result<String, Error> {
     match path() {
         Ok(config) => match fs::read_to_string(config) {
-            Ok(contents) => Ok(contents),
+            Ok(contents) => {
+                let mut contents = contents;
+                contents.retain(|c| c != '\n');
+
+                Ok(contents)
+            }
             Err(e) => Err(e),
         },
         Err(e) => Err(e),
