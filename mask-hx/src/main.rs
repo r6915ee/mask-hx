@@ -11,7 +11,7 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 
-use libmask::{config, fetcher};
+use libmask::{config, exec, fetcher};
 
 /// Defines the "output level" of various functions.
 ///
@@ -114,6 +114,17 @@ enum Commands {
         /// The Haxe version to switch to
         haxe_version: String,
     },
+
+    /// Shortcut command to the compiler
+    ///
+    /// This allows you to access the compiler of the current Haxe version.
+    ///
+    /// If you wish to maintain compatibility in scripts, create a script
+    /// to this command and make sure that it's included in your PATH.
+    Compiler {
+        /// List of arguments to pass to the compiler
+        compiler_args: Vec<String>,
+    },
 }
 
 /// Defines the final output of `mask-hx`.
@@ -206,6 +217,16 @@ fn main() {
                 },
             }
         }
+        Some(Commands::Compiler { compiler_args }) => match exec::haxe(compiler_args.clone()) {
+            Ok(_) => CommandResult {
+                message: String::from("chocolate"),
+                code: 0,
+            },
+            Err(e) => CommandResult {
+                message: format!("exec error: {}", e),
+                code: 1,
+            },
+        },
         None => CommandResult {
             message: String::from(
                 "invalid subcommand; use 'mask help' or 'mask --help' to see a list of commands",
