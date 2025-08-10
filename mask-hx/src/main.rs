@@ -144,7 +144,10 @@ fn main() {
                         true => {
                             format!("Haxe version {} is valid and ready to use", haxe_version)
                         }
-                        false => format!("Haxe version {} is not valid", haxe_version),
+                        false => format!(
+                            "Haxe version {} is not valid or the standard library is unavailable",
+                            haxe_version
+                        ),
                     },
                     code: 0,
                 },
