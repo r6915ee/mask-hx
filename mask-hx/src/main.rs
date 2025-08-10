@@ -67,6 +67,7 @@ struct CommandResult {
     code: i32,
 }
 
+/// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
     command!()
         .arg(arg!(-q --quiet "Enable quiet output"))
