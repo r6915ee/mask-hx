@@ -28,6 +28,7 @@ pub mod fetcher;
 /// Handles executable launching.
 ///
 /// [interactive] handles running [Haxelib](https://lib.haxe.org) and the compiler.
+/// The compiler is responsible for getting executable code up and running.
 /// [Haxelib](https://lib.haxe.org) is the official package manager for Haxe,
 /// so most projects use it.
 pub mod interactive;
