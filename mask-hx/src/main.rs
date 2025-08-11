@@ -85,6 +85,7 @@ fn handle_commands() -> ArgMatches {
         .get_matches()
 }
 
+/// Shortcut function that both the exec and lib commands use.
 fn exec_instructions(
     haxe_version: Option<String>,
     args: ValuesRef<String>,
