@@ -24,6 +24,7 @@ struct CommandResult {
 /// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
     command!()
+        .arg(arg!(-e --explicit "Use an explicit Haxe version"))
         .subcommand(
             Command::new("check")
                 .about("Checks whether or not a Haxe version is installed")
