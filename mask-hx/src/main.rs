@@ -37,11 +37,8 @@ fn handle_commands() -> ArgMatches {
                     Specifically, it checks for the existence of a folder in the \
                     ~/.haxe/ directory, where ~ is the home directory, and checks \
                     if the standard library is present as well.\n\n\
-                    If you don't specify a Haxe version, then the .mask configuration \
+                    If the explicit argument isn't used, then the .mask configuration \
                     will be read.",
-                )
-                .arg(
-                    arg!([HAXE_VERSION] "Haxe version to check, if no configuration is specified"),
                 ),
         )
         .subcommand(
@@ -64,8 +61,13 @@ fn main() {
     let matches: ArgMatches = handle_commands();
 
     let result: CommandResult;
+    let mut haxe_version: Option<String> = None;
 
-    if let Some(matches) = matches.subcommand_matches("check") {
+    if let Some(version) = matches.get_one::<String>("explicit") {
+        haxe_version = Some(version.to_string());
+    }
+
+    if let Some(_) = matches.subcommand_matches("check") {
         fn get_result(check: Result<bool, std::io::Error>) -> CommandResult {
             match check {
                 Ok(bool_opt) => match bool_opt {
@@ -86,8 +88,10 @@ fn main() {
                 },
             }
         }
-        if let Some(version) = matches.get_one::<String>("HAXE_VERSION") {
-            result = get_result(fetcher::is_haxe_version_installed(version));
+        if haxe_version.is_some() {
+            result = get_result(fetcher::is_haxe_version_installed(
+                haxe_version.unwrap().as_str(),
+            ));
         } else {
             result = get_result(fetcher::is_config_version_installed());
         }
