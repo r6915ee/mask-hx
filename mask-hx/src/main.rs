@@ -9,7 +9,7 @@
 
 use std::process;
 
-use clap::{ArgMatches, Command, arg, command};
+use clap::{ArgAction, ArgMatches, Command, arg, command};
 
 use libmask::{config, fetcher};
 
@@ -24,7 +24,11 @@ struct CommandResult {
 /// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
     command!()
-        .arg(arg!(-e --explicit "Use an explicit Haxe version"))
+        .arg(
+            arg!(-e --explicit "Use an explicit Haxe version")
+                .action(ArgAction::Set)
+                .value_name("HAXE_VERSION"),
+        )
         .subcommand(
             Command::new("check")
                 .about("Checks whether or not a Haxe version is installed")
