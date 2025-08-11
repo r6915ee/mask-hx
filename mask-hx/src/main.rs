@@ -11,7 +11,7 @@ use std::process;
 
 use clap::{ArgMatches, Command, arg, command};
 
-use libmask::{config, exec, fetcher};
+use libmask::{config, fetcher, interactive};
 
 /// Defines the final output of `mask-hx`.
 struct CommandResult {

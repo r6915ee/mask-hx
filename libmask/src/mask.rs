@@ -19,15 +19,15 @@
 /// [config] is responsible for `.mask` configurations.
 /// It acts as an interface to them.
 pub mod config;
-/// Handles executable launching.
-///
-/// [exec] handles running [Haxelib](https://lib.haxe.org) and the compiler.
-/// [Haxelib](https://lib.haxe.org) is the official package manager for Haxe,
-/// so most projects use it.
-pub mod exec;
 /// Handles Haxe versions.
 ///
 /// [fetcher] is used for a lot of operations related to [Haxe](https://haxe.org)
 /// versions. It is able to validate the existence of Haxe versions, pass their
 /// data, and more.
 pub mod fetcher;
+/// Handles executable launching.
+///
+/// [interactive] handles running [Haxelib](https://lib.haxe.org) and the compiler.
+/// [Haxelib](https://lib.haxe.org) is the official package manager for Haxe,
+/// so most projects use it.
+pub mod interactive;

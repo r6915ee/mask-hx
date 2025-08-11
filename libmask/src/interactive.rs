@@ -4,6 +4,13 @@ use std::process::Command;
 
 use crate::{config, fetcher};
 
+/// Executes the [Haxe](https://haxe.org) compiler and
+/// passes arguments to it.
+///
+/// This will check if the [Haxe](https://haxe.org) compiler
+/// is available for the current configuration; if it is,
+/// then the Haxe compiler will be executed with the arguments
+/// provided.
 pub fn haxe(args: Vec<String>) -> Result<(), Error> {
     match fetcher::is_config_version_installed() {
         Ok(installed) => match installed {
