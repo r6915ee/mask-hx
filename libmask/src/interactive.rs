@@ -1,6 +1,7 @@
-use std::io::{Error, ErrorKind};
+use std::io;
+use std::io::{Error, ErrorKind, Write};
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, ExitStatus, Output};
 
 use crate::{config, fetcher};
 
@@ -11,26 +12,32 @@ use crate::{config, fetcher};
 /// is available for the current configuration; if it is,
 /// then the Haxe compiler will be executed with the arguments
 /// provided.
-pub fn haxe(args: Vec<String>) -> Result<(), Error> {
-    match fetcher::is_config_version_installed() {
+pub fn haxe(args: Vec<String>, haxe_version: Option<String>) -> io::Result<ExitStatus> {
+    let used_version: String;
+
+    if let Some(version) = haxe_version {
+        used_version = version;
+    } else {
+        used_version = config::read()?;
+    }
+
+    match fetcher::is_haxe_version_installed(used_version.as_str()) {
         Ok(installed) => match installed {
-            true => match config::read() {
-                Ok(data) => match fetcher::haxe_path(data.as_str()) {
-                    Ok(buf) => {
-                        let mut buf: PathBuf = buf;
-                        buf.push("haxe");
+            true => match fetcher::haxe_path(used_version.as_str()) {
+                Ok(buf) => {
+                    let mut buf: PathBuf = buf;
+                    buf.push("haxe");
 
-                        let mut command: Command = Command::new(buf);
-                        command.args(args);
-                        command.output()?;
+                    let output: Output = Command::new(buf).args(args).output()?;
 
-                        Ok(())
-                    }
-                    Err(e) => Err(e),
-                },
+                    io::stdout().write_all(&output.stdout)?;
+                    io::stderr().write_all(&output.stderr)?;
+
+                    Ok(output.status)
+                }
                 Err(e) => Err(e),
             },
-            false => Err(Error::new(ErrorKind::InvalidData, "Haxe is not installed")),
+            false => Err(Error::new(ErrorKind::NotFound, "Haxe is not installed")),
         },
         Err(e) => Err(e),
     }

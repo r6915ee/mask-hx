@@ -7,7 +7,7 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::process;
+use std::{io::Error, process};
 
 use clap::{ArgAction, ArgMatches, Command, arg, command};
 
@@ -51,6 +51,22 @@ fn handle_commands() -> ArgMatches {
                 )
                 .arg(arg!(<HAXE_VERSION> "The Haxe version to switch to")),
         )
+        .subcommand(
+            Command::new("exec")
+                .about("Executes the Haxe compiler")
+                .long_about(
+                    "This checks for the existence of the Haxe compiler, and then \
+                    executes it. The Haxe compiler used is the one provided by the \
+                    currently configured version.",
+                )
+                .disable_help_flag(true)
+                .arg(
+                    arg!(<ARGUMENTS>... "Specify the arguments to pass to the compiler")
+                        .value_delimiter(' ')
+                        .allow_hyphen_values(true)
+                        .trailing_var_arg(true),
+                ),
+        )
         .get_matches()
 }
 
@@ -68,7 +84,7 @@ fn main() {
     }
 
     if let Some(_) = matches.subcommand_matches("check") {
-        fn get_result(check: Result<bool, std::io::Error>) -> CommandResult {
+        fn get_result(check: Result<bool, Error>) -> CommandResult {
             match check {
                 Ok(bool_opt) => match bool_opt {
                     true => CommandResult {
@@ -123,6 +139,78 @@ fn main() {
                 code: 1,
             },
         };
+    } else if let Some(matches) = matches.subcommand_matches("exec") {
+        let is_version_installed: Result<bool, Error>;
+
+        if haxe_version.is_some() {
+            is_version_installed =
+                fetcher::is_haxe_version_installed(haxe_version.as_ref().unwrap().as_str())
+        } else {
+            is_version_installed = fetcher::is_config_version_installed();
+        }
+
+        result = match is_version_installed {
+            Ok(bool_opt) => match bool_opt {
+                true => {
+                    let args = matches.get_many::<String>("ARGUMENTS").unwrap();
+                    let mut args_vec: Vec<String> = vec![];
+
+                    for arg in args {
+                        args_vec.push(arg.to_string());
+                    }
+
+                    match interactive::haxe(args_vec, haxe_version) {
+                        Ok(status) => match status.code() {
+                            Some(code) => match code {
+                                0 => CommandResult {
+                                    message: String::from("successfully ran Haxe"),
+                                    code: 0,
+                                },
+                                _ => CommandResult {
+                                    message: String::from(
+                                        "successfully ran Haxe, but error was returned",
+                                    ),
+                                    code: code,
+                                },
+                            },
+                            None => CommandResult {
+                                message: String::from(
+                                    "successfully ran Haxe, but was terminated by a signal",
+                                ),
+                                code: 1,
+                            },
+                        },
+                        Err(e) => CommandResult {
+                            message: format!("io error: {}", e),
+                            code: 1,
+                        },
+                    }
+                }
+                false => {
+                    if haxe_version.clone().is_some() {
+                        CommandResult {
+                            message: format!(
+                                "Haxe version {} is not installed",
+                                haxe_version.unwrap().as_str()
+                            ),
+                            code: 1,
+                        }
+                    } else {
+                        CommandResult {
+                            message: format!(
+                                "Haxe version {} is not installed",
+                                config::read().unwrap()
+                            ),
+                            code: 1,
+                        }
+                    }
+                }
+            },
+            Err(e) => CommandResult {
+                message: format!("io error: {}", e),
+                code: 1,
+            },
+        }
     } else {
         result = CommandResult {
             message: String::from(
