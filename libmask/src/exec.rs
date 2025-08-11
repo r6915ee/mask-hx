@@ -13,8 +13,6 @@ pub fn haxe(args: Vec<String>) -> Result<(), Error> {
                         let mut buf: PathBuf = buf;
                         buf.push("haxe");
 
-                        println!("{}", buf.display());
-
                         let mut command: Command = Command::new(buf);
                         command.args(args);
                         command.output()?;
