@@ -5,28 +5,24 @@ use std::process::{Command, ExitStatus, Output};
 
 use crate::{config, fetcher};
 
-/// Executes the [Haxe](https://haxe.org) compiler and
-/// passes arguments to it.
+/// Executes a specified program
 ///
-/// This will check if the [Haxe](https://haxe.org) compiler
-/// is available for the current configuration; if it is,
-/// then the Haxe compiler will be executed with the arguments
+/// This will check if the program exists; if it does,
+/// then the program will be executed with the arguments
 /// provided.
-pub fn haxe(args: Vec<String>, haxe_version: Option<String>) -> io::Result<ExitStatus> {
-    let used_version: String;
-
-    if let Some(version) = haxe_version {
-        used_version = version;
-    } else {
-        used_version = config::read()?;
-    }
+pub fn exec(
+    args: Vec<String>,
+    haxe_version: Option<String>,
+    prog: Option<String>,
+) -> io::Result<ExitStatus> {
+    let used_version: String = haxe_version.unwrap_or(config::read()?);
 
     match fetcher::is_haxe_version_installed(used_version.as_str()) {
         Ok(installed) => match installed {
             true => match fetcher::haxe_path(used_version.as_str()) {
                 Ok(buf) => {
                     let mut buf: PathBuf = buf;
-                    buf.push("haxe");
+                    buf.push(prog.unwrap_or("haxe".to_string()));
 
                     let output: Output = Command::new(buf).args(args).output()?;
 

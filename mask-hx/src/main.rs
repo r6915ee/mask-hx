@@ -9,7 +9,7 @@
 
 use std::{io::Error, process};
 
-use clap::{ArgAction, ArgMatches, Command, arg, command};
+use clap::{ArgAction, ArgMatches, Command, arg, command, parser::ValuesRef};
 
 use libmask::{config, fetcher, interactive};
 
@@ -67,7 +67,103 @@ fn handle_commands() -> ArgMatches {
                         .trailing_var_arg(true),
                 ),
         )
+        .subcommand(
+            Command::new("lib")
+                .about("Executes Haxelib")
+                .long_about(
+                    "This acts similar to the exec subcommand, but instead performs \
+                    operations on Haxelib, the Haxe package manager.",
+                )
+                .disable_help_flag(true)
+                .arg(
+                    arg!(<ARGUMENTS>... "Specify the arguments to pass to Haxelib")
+                        .value_delimiter(' ')
+                        .allow_hyphen_values(true)
+                        .trailing_var_arg(true),
+                ),
+        )
         .get_matches()
+}
+
+fn exec_instructions(
+    haxe_version: Option<String>,
+    args: ValuesRef<String>,
+    prog: Option<String>,
+) -> CommandResult {
+    let is_version_installed: Result<bool, Error>;
+
+    if haxe_version.is_some() {
+        is_version_installed =
+            fetcher::is_haxe_version_installed(haxe_version.as_ref().unwrap().as_str())
+    } else {
+        is_version_installed = fetcher::is_config_version_installed();
+    }
+
+    match is_version_installed {
+        Ok(bool_opt) => match bool_opt {
+            true => {
+                let mut args_vec: Vec<String> = vec![];
+
+                for arg in args {
+                    args_vec.push(arg.to_string());
+                }
+
+                match interactive::exec(args_vec, haxe_version, prog.clone()) {
+                    Ok(status) => match status.code() {
+                        Some(code) => match code {
+                            0 => CommandResult {
+                                message: format!(
+                                    "successfully ran {} program",
+                                    prog.unwrap_or("haxe".to_string())
+                                ),
+                                code: 0,
+                            },
+                            _ => CommandResult {
+                                message: format!(
+                                    "successfully ran {} program, but error was returned",
+                                    prog.unwrap_or("haxe".to_string())
+                                ),
+                                code: code,
+                            },
+                        },
+                        None => CommandResult {
+                            message: String::from(
+                                "successfully ran Haxe, but was terminated by a signal",
+                            ),
+                            code: 1,
+                        },
+                    },
+                    Err(e) => CommandResult {
+                        message: format!("io error: {}", e),
+                        code: 1,
+                    },
+                }
+            }
+            false => {
+                if haxe_version.clone().is_some() {
+                    CommandResult {
+                        message: format!(
+                            "Haxe version {} is not installed",
+                            haxe_version.unwrap().as_str()
+                        ),
+                        code: 1,
+                    }
+                } else {
+                    CommandResult {
+                        message: format!(
+                            "Haxe version {} is not installed",
+                            config::read().unwrap()
+                        ),
+                        code: 1,
+                    }
+                }
+            }
+        },
+        Err(e) => CommandResult {
+            message: format!("io error: {}", e),
+            code: 1,
+        },
+    }
 }
 
 /// The entry point of the program.
@@ -140,77 +236,17 @@ fn main() {
             },
         };
     } else if let Some(matches) = matches.subcommand_matches("exec") {
-        let is_version_installed: Result<bool, Error>;
-
-        if haxe_version.is_some() {
-            is_version_installed =
-                fetcher::is_haxe_version_installed(haxe_version.as_ref().unwrap().as_str())
-        } else {
-            is_version_installed = fetcher::is_config_version_installed();
-        }
-
-        result = match is_version_installed {
-            Ok(bool_opt) => match bool_opt {
-                true => {
-                    let args = matches.get_many::<String>("ARGUMENTS").unwrap();
-                    let mut args_vec: Vec<String> = vec![];
-
-                    for arg in args {
-                        args_vec.push(arg.to_string());
-                    }
-
-                    match interactive::haxe(args_vec, haxe_version) {
-                        Ok(status) => match status.code() {
-                            Some(code) => match code {
-                                0 => CommandResult {
-                                    message: String::from("successfully ran Haxe"),
-                                    code: 0,
-                                },
-                                _ => CommandResult {
-                                    message: String::from(
-                                        "successfully ran Haxe, but error was returned",
-                                    ),
-                                    code: code,
-                                },
-                            },
-                            None => CommandResult {
-                                message: String::from(
-                                    "successfully ran Haxe, but was terminated by a signal",
-                                ),
-                                code: 1,
-                            },
-                        },
-                        Err(e) => CommandResult {
-                            message: format!("io error: {}", e),
-                            code: 1,
-                        },
-                    }
-                }
-                false => {
-                    if haxe_version.clone().is_some() {
-                        CommandResult {
-                            message: format!(
-                                "Haxe version {} is not installed",
-                                haxe_version.unwrap().as_str()
-                            ),
-                            code: 1,
-                        }
-                    } else {
-                        CommandResult {
-                            message: format!(
-                                "Haxe version {} is not installed",
-                                config::read().unwrap()
-                            ),
-                            code: 1,
-                        }
-                    }
-                }
-            },
-            Err(e) => CommandResult {
-                message: format!("io error: {}", e),
-                code: 1,
-            },
-        }
+        result = exec_instructions(
+            haxe_version,
+            matches.get_many::<String>("ARGUMENTS").unwrap(),
+            None,
+        )
+    } else if let Some(matches) = matches.subcommand_matches("lib") {
+        result = exec_instructions(
+            haxe_version,
+            matches.get_many::<String>("ARGUMENTS").unwrap(),
+            Some("haxelib".to_string()),
+        )
     } else {
         result = CommandResult {
             message: String::from(
