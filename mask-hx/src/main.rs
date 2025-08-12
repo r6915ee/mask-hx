@@ -7,7 +7,7 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{io::Error, process};
+use std::{env, io::Error, process};
 
 use clap::{ArgAction, ArgMatches, Command, arg, command, parser::ValuesRef};
 
@@ -186,6 +186,11 @@ fn main() {
 
     if let Some(version) = matches.get_one::<String>("explicit") {
         haxe_version = Some(version.to_string());
+    } else {
+        match env::var("MASK_VERSION") {
+            Ok(data) => haxe_version = Some(data.to_string()),
+            Err(_) => {}
+        }
     }
 
     if let Some(_) = matches.subcommand_matches("check") {
