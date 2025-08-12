@@ -93,12 +93,10 @@ fn exec_instructions(
 ) -> CommandResult {
     let is_version_installed: Result<bool, Error>;
 
-    if haxe_version.is_some() {
-        is_version_installed =
-            fetcher::is_haxe_version_installed(haxe_version.as_ref().unwrap().as_str())
-    } else {
-        is_version_installed = fetcher::is_config_version_installed();
-    }
+    is_version_installed = match &haxe_version {
+        Some(version) => fetcher::is_haxe_version_installed(version.as_str()),
+        None => fetcher::is_config_version_installed(),
+    };
 
     match is_version_installed {
         Ok(bool_opt) => match bool_opt {
@@ -241,7 +239,7 @@ fn main() {
         result = exec_instructions(
             haxe_version,
             matches.get_many::<String>("ARGUMENTS").unwrap(),
-            None,
+            Some("haxe".to_string()),
         )
     } else if let Some(matches) = matches.subcommand_matches("lib") {
         result = exec_instructions(
