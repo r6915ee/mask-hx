@@ -128,8 +128,9 @@ fn exec_instructions(
                             },
                         },
                         None => CommandResult {
-                            message: String::from(
-                                "successfully ran Haxe, but was terminated by a signal",
+                            message: format!(
+                                "successfully ran {} program, but was terminated by a signal",
+                                prog.unwrap_or("haxe".to_string())
                             ),
                             code: 1,
                         },
@@ -141,7 +142,7 @@ fn exec_instructions(
                 }
             }
             false => {
-                if haxe_version.clone().is_some() {
+                if haxe_version.as_ref().is_some() {
                     CommandResult {
                         message: format!(
                             "Haxe version {} is not installed",
