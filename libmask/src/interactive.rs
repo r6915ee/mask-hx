@@ -15,7 +15,16 @@ pub fn exec(
     haxe_version: Option<String>,
     prog: Option<String>,
 ) -> io::Result<ExitStatus> {
-    let used_version: String = haxe_version.unwrap_or(config::read()?);
+    let used_version: String;
+
+    if let Some(version) = haxe_version {
+        used_version = version;
+    } else {
+        used_version = match config::read() {
+            Ok(version) => version,
+            Err(_) => String::from("0"),
+        }
+    }
 
     match fetcher::is_haxe_version_installed(used_version.as_str()) {
         Ok(installed) => match installed {
