@@ -1,6 +1,6 @@
 # mask-hx
 
-> *A tool to manage all of your [Haxe](https://haxe.org) versions easily*
+> *Generic [Haxe](https://haxe.org) version manager*
 
 ## About
 
