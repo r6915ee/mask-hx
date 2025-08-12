@@ -12,7 +12,8 @@ interface to access your versions, all in one place.
 
 ## Installation
 
-`mask-hx` can be installed from GitHub releases.
+`mask-hx` can be installed from GitHub releases. You should rename the
+binary to `mask-hx` and should make sure that it's in the `PATH`.
 
 However, this is generally not preferred in some cases, as it takes some
 additional time to set up. Because of this, you can use
