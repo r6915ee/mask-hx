@@ -36,6 +36,7 @@ pub fn exec(
                     let output: Output = Command::new(buf)
                         .args(args)
                         .stdout(Stdio::inherit())
+                        .stdin(Stdio::inherit())
                         .output()?;
 
                     Ok(output.status)
