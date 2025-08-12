@@ -1,7 +1,7 @@
 use std::io;
-use std::io::{Error, ErrorKind, Write};
+use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
-use std::process::{Command, ExitStatus, Output};
+use std::process::{Command, ExitStatus, Output, Stdio};
 
 use crate::{config, fetcher};
 
@@ -33,10 +33,10 @@ pub fn exec(
                     let mut buf: PathBuf = buf;
                     buf.push(prog.unwrap_or("haxe".to_string()));
 
-                    let output: Output = Command::new(buf).args(args).output()?;
-
-                    io::stdout().write_all(&output.stdout)?;
-                    io::stderr().write_all(&output.stderr)?;
+                    let output: Output = Command::new(buf)
+                        .args(args)
+                        .stdout(Stdio::inherit())
+                        .output()?;
 
                     Ok(output.status)
                 }
