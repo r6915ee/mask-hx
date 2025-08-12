@@ -19,6 +19,8 @@ struct CommandResult {
     message: String,
     /// The exit status code of `mask-hx`.
     code: i32,
+    /// Display the exit message, even if the exit status code is 0.
+    force: bool,
 }
 
 /// Give possible commands to [clap].
@@ -116,6 +118,7 @@ fn exec_instructions(
                                     prog.unwrap_or("haxe".to_string())
                                 ),
                                 code: 0,
+                                force: false,
                             },
                             _ => CommandResult {
                                 message: format!(
@@ -123,6 +126,7 @@ fn exec_instructions(
                                     prog.unwrap_or("haxe".to_string())
                                 ),
                                 code: code,
+                                force: false,
                             },
                         },
                         None => CommandResult {
@@ -131,11 +135,13 @@ fn exec_instructions(
                                 prog.unwrap_or("haxe".to_string())
                             ),
                             code: 1,
+                            force: false,
                         },
                     },
                     Err(e) => CommandResult {
                         message: format!("io error: {}", e),
                         code: 1,
+                        force: false,
                     },
                 }
             }
@@ -147,6 +153,7 @@ fn exec_instructions(
                             haxe_version.unwrap().as_str()
                         ),
                         code: 1,
+                        force: false,
                     }
                 } else {
                     CommandResult {
@@ -155,6 +162,7 @@ fn exec_instructions(
                             config::read().unwrap()
                         ),
                         code: 1,
+                        force: false,
                     }
                 }
             }
@@ -162,6 +170,7 @@ fn exec_instructions(
         Err(e) => CommandResult {
             message: format!("io error: {}", e),
             code: 1,
+            force: false,
         },
     }
 }
@@ -186,17 +195,20 @@ fn main() {
                     true => CommandResult {
                         message: String::from("Haxe version specified is usable"),
                         code: 0,
+                        force: true,
                     },
                     false => CommandResult {
                         message: String::from(
                             "Haxe version used either lacks a standard library or cannot be found",
                         ),
                         code: 1,
+                        force: false,
                     },
                 },
                 Err(e) => CommandResult {
                     message: format!("io error: {}", e),
                     code: 1,
+                    force: false,
                 },
             }
         }
@@ -218,21 +230,25 @@ fn main() {
                         Ok(_) => CommandResult {
                             message: String::from("successfully switched Haxe version"),
                             code: 0,
+                            force: true,
                         },
                         Err(e) => CommandResult {
                             message: format!("io error: {}", e),
                             code: 1,
+                            force: false,
                         },
                     }
                 }
                 false => CommandResult {
                     message: String::from("Haxe version specified is not valid"),
                     code: 1,
+                    force: false,
                 },
             },
             Err(e) => CommandResult {
                 message: format!("io error: {}", e),
                 code: 1,
+                force: false,
             },
         };
     } else if let Some(matches) = matches.subcommand_matches("exec") {
@@ -253,10 +269,13 @@ fn main() {
                 "invalid subcommand, or no subcommand was passed; use 'mask-hx help' for a list of commands",
             ),
             code: 22,
+            force: false,
         }
     }
 
-    println!("mask: {}", result.message);
+    if result.code != 0 || result.force {
+        println!("mask: {}", result.message);
+    }
 
     process::exit(result.code);
 }
