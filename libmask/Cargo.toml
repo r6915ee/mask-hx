@@ -1,9 +1,10 @@
 [package]
 name = "libmask"
+authors = ["r6915ee"]
 description = "Haxe version management library"
 edition = "2024"
 categories = ["development-tools", "config"]
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT"
 homepage = "https://github.com/r6915ee/mask-hx"
 repository = "https://github.com/r6915ee/mask-hx"
