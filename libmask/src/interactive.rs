@@ -40,6 +40,13 @@ pub fn exec(
                         Err(_) => {}
                     }
 
+                    let mut std_buf: PathBuf = buf.clone();
+                    std_buf.push("std");
+
+                    unsafe {
+                        env::set_var("HAXE_STD_PATH", std_buf);
+                    }
+
                     buf.push(prog.unwrap_or("haxe".to_string()));
 
                     let output: Output = Command::new(buf)
