@@ -53,6 +53,7 @@ pub fn exec(
                         .args(args)
                         .stdout(Stdio::inherit())
                         .stdin(Stdio::inherit())
+                        .stderr(Stdio::inherit())
                         .output()?;
 
                     Ok(output.status)
