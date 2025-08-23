@@ -37,7 +37,12 @@ pub fn exec(
                         Ok(data) => unsafe {
                             env::set_var("PATH", format!("{}:{}", buf.display(), data));
                         },
-                        Err(_) => {}
+                        Err(_) => {
+                            return Err(Error::new(
+                                ErrorKind::NotFound,
+                                "PATH could not be modified",
+                            ));
+                        }
                     }
 
                     let mut std_buf: PathBuf = buf.clone();
