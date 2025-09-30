@@ -1,14 +1,18 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.mkShell {
-  buildInputs = with pkgs; [
-    rustc
-    cargo
-    rustfmt
-    rust-analyzer
-    clippy
-  ];
+(pkgs.buildFHSEnv {
+  name = "mask-hx";
+
+  targetPkgs =
+    pkgs: with pkgs; [
+      rustc
+      cargo
+      rustfmt
+      rust-analyzer
+      clippy
+      neko
+    ];
 
   RUST_BACKTRACE = 1;
-}
+}).env
