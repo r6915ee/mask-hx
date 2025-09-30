@@ -12,8 +12,9 @@ interface to access your versions, all in one place.
 
 ## Installation
 
-`mask-hx` can be installed from GitHub releases. You should rename the
-binary to `mask-hx` and should make sure that it's in the `PATH`.
+`mask-hx` can be installed from Codeberg, and for releases prior to v0.1.3,
+GitHub releases. You should rename the binary to `mask-hx` and should make
+sure that it's in your `PATH`.
 
 However, this is generally not preferred in some cases, as it takes some
 additional time to set up. Because of this, you can use
@@ -24,7 +25,42 @@ other crate:
 # Install from Crates.io
 cargo install mask-hx
 # Install from Git
-cargo install --git https://github.com/r6915ee/mask-hx.git
+cargo install --git https://codeberg.org/r6915ee/mask-hx.git
+```
+
+### NixOS Users
+
+[NixOS](https://nixos.org/) users have their own way to install the program,
+due to the inavailability of the two prior methods of installation.
+
+The repository contains a Nix package in the [`default.nix`](./default.nix)
+file that can be loaded using the following example in the `configuration.nix`
+file:
+
+```nix
+{ pkgs, ... }:
+let
+  # . . .
+  mask-hx = pkgs.fetchgit {
+    url = "https://codeberg.org/r6915ee/mask-hx.git";
+    # Version v0.1.3 is the minimum supported version of the Nix package.
+    rev = "v0.1.3";
+    # When updating, make sure to update the hash as well, due to the way
+    # pkgs.fetchgit works.
+    hash = "";
+  };
+  # . . .
+in
+{
+  # . . .
+  environment.systemPackages = [
+    # . . .
+    # Add mask-hx to be introduced to the Nix store.
+    mask-hx
+    # . . .
+  ];
+  # . . .
+}
 ```
 
 ## Usage
