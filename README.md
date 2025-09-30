@@ -83,7 +83,7 @@ of the subfolder is the version number, as that's the standard (though
 nothing's stopping you from naming it whatever you like). As an example, Haxe
 [v4.2.5](https://haxe.org/download/version/4.2.5/) would be in the `4.2.5`
 subfolder. The compiler and Haxelib need to be located in the root of this
-subfolder.
+subfolder, and so does the standard library.
 
 ### Basic usage
 
