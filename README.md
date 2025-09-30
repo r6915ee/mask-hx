@@ -41,14 +41,14 @@ file:
 { pkgs, ... }:
 let
   # . . .
-  mask-hx = pkgs.fetchgit {
+  mask-hx = pkgs.callPackage "${pkgs.fetchgit {
     url = "https://codeberg.org/r6915ee/mask-hx.git";
     # Version v0.1.3 is the minimum supported version of the Nix package.
     rev = "v0.1.3";
     # When updating, make sure to update the hash as well, due to the way
     # pkgs.fetchgit works.
     hash = "";
-  };
+  }}/default.nix";
   # . . .
 in
 {
@@ -62,6 +62,13 @@ in
   # . . .
 }
 ```
+
+This calls the package provided by the repository, and then registers it as a
+system package. The package is provided in an FHS environment that encompasses
+both the output of `nixpkgs.rustPlatform.buildRustPackage` and Nixpkgs's Neko
+package, which also allows executing non-Nix binaries, such as the Haxe
+binaries that `mask-hx` provides a layer for. This allows `mask-hx` to work
+properly on NixOS.
 
 ## Usage
 
