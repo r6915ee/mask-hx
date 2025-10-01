@@ -12,6 +12,7 @@
       rust-analyzer
       clippy
       neko
+      gcc
     ];
 
   RUST_BACKTRACE = 1;
