@@ -7,11 +7,11 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{env, io::Error, process};
+use std::{env, io::Error, path::PathBuf, process};
 
 use clap::{ArgAction, ArgMatches, Command, arg, command, parser::ValuesRef};
 
-use libmask::{config, fetcher, interactive};
+use libmask::{config::Config, fetcher::HaxeVersion, interactive};
 
 /// Defines the final output of `mask-hx`.
 struct CommandResult {
@@ -92,94 +92,6 @@ fn handle_commands() -> ArgMatches {
         .get_matches()
 }
 
-/// Shortcut function that both the exec and lib commands use.
-fn exec_instructions(
-    haxe_version: Option<String>,
-    args: ValuesRef<String>,
-    prog: Option<String>,
-) -> CommandResult {
-    let is_version_installed: Result<bool, Error>;
-
-    is_version_installed = match &haxe_version {
-        Some(version) => fetcher::is_haxe_version_installed(version.as_str()),
-        None => fetcher::is_config_version_installed(),
-    };
-
-    match is_version_installed {
-        Ok(bool_opt) => match bool_opt {
-            true => {
-                let mut args_vec: Vec<String> = vec![];
-
-                for arg in args {
-                    args_vec.push(arg.to_string());
-                }
-
-                match interactive::exec(args_vec, haxe_version, prog.clone()) {
-                    Ok(status) => match status.code() {
-                        Some(code) => match code {
-                            0 => CommandResult {
-                                message: format!(
-                                    "successfully ran {} program",
-                                    prog.unwrap_or("haxe".to_string())
-                                ),
-                                code: 0,
-                                force: false,
-                            },
-                            _ => CommandResult {
-                                message: format!(
-                                    "successfully ran {} program, but error was returned",
-                                    prog.unwrap_or("haxe".to_string())
-                                ),
-                                code: code,
-                                force: false,
-                            },
-                        },
-                        None => CommandResult {
-                            message: format!(
-                                "successfully ran {} program, but was terminated by a signal",
-                                prog.unwrap_or("haxe".to_string())
-                            ),
-                            code: 1,
-                            force: false,
-                        },
-                    },
-                    Err(e) => CommandResult {
-                        message: format!("io error: {}", e),
-                        code: 1,
-                        force: false,
-                    },
-                }
-            }
-            false => {
-                if haxe_version.as_ref().is_some() {
-                    CommandResult {
-                        message: format!(
-                            "Haxe version {} is not installed",
-                            haxe_version.unwrap().as_str()
-                        ),
-                        code: 1,
-                        force: false,
-                    }
-                } else {
-                    CommandResult {
-                        message: format!(
-                            "Haxe version {} is not installed",
-                            config::read().unwrap()
-                        ),
-                        code: 1,
-                        force: false,
-                    }
-                }
-            }
-        },
-        Err(e) => CommandResult {
-            message: format!("io error: {}", e),
-            code: 1,
-            force: false,
-        },
-    }
-}
-
 /// The entry point of the program.
 ///
 /// This handles the arguments, as well as how the program should exit.
@@ -187,92 +99,34 @@ fn main() {
     let matches: ArgMatches = handle_commands();
 
     let result: CommandResult;
-    let mut haxe_version: Option<String> = None;
+    let config: Config;
 
     if let Some(version) = matches.get_one::<String>("explicit") {
-        haxe_version = Some(version.to_string());
+        config = Config(HaxeVersion(version.clone()));
+    } else if let Some(version) = matches.get_one::<String>("config") {
+        config = Config::new(Some(version)).unwrap_or(Config::default());
     } else {
-        match env::var("MASK_VERSION") {
-            Ok(data) => haxe_version = Some(data.to_string()),
-            Err(_) => {}
+        if let Ok(data) = env::var("MASK_VERSION") {
+            config = Config(HaxeVersion(data));
+        } else {
+            config = Config::default();
         }
     }
 
     if let Some(_) = matches.subcommand_matches("check") {
-        fn get_result(check: Result<bool, Error>) -> CommandResult {
-            match check {
-                Ok(bool_opt) => match bool_opt {
-                    true => CommandResult {
-                        message: String::from("Haxe version specified is usable"),
-                        code: 0,
-                        force: true,
-                    },
-                    false => CommandResult {
-                        message: String::from(
-                            "Haxe version used either lacks a standard library or cannot be found",
-                        ),
-                        code: 1,
-                        force: false,
-                    },
-                },
-                Err(e) => CommandResult {
-                    message: format!("io error: {}", e),
-                    code: 1,
-                    force: false,
-                },
+        result = match config.0.get_path_installed() {
+            Ok(data) => {
+                todo!()
             }
-        }
-        if haxe_version.is_some() {
-            result = get_result(fetcher::is_haxe_version_installed(
-                haxe_version.unwrap().as_str(),
-            ));
-        } else {
-            result = get_result(fetcher::is_config_version_installed());
-        }
-    } else if let Some(matches) = matches.subcommand_matches("switch") {
-        result = match fetcher::is_haxe_version_installed(
-            matches.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
-        ) {
-            Ok(bool_opt) => match bool_opt {
-                true => {
-                    match config::write(matches.get_one::<String>("HAXE_VERSION").unwrap().clone())
-                    {
-                        Ok(_) => CommandResult {
-                            message: String::from("successfully switched Haxe version"),
-                            code: 0,
-                            force: true,
-                        },
-                        Err(e) => CommandResult {
-                            message: format!("io error: {}", e),
-                            code: 1,
-                            force: false,
-                        },
-                    }
-                }
-                false => CommandResult {
-                    message: String::from("Haxe version specified is not valid"),
-                    code: 1,
-                    force: false,
-                },
-            },
             Err(e) => CommandResult {
-                message: format!("io error: {}", e),
-                code: 1,
+                message: e.to_string(),
+                code: e.kind() as i32,
                 force: false,
             },
         };
+    } else if let Some(matches) = matches.subcommand_matches("switch") {
     } else if let Some(matches) = matches.subcommand_matches("exec") {
-        result = exec_instructions(
-            haxe_version,
-            matches.get_many::<String>("ARGUMENTS").unwrap(),
-            Some("haxe".to_string()),
-        )
     } else if let Some(matches) = matches.subcommand_matches("lib") {
-        result = exec_instructions(
-            haxe_version,
-            matches.get_many::<String>("ARGUMENTS").unwrap(),
-            Some("haxelib".to_string()),
-        )
     } else {
         result = CommandResult {
             message: String::from(

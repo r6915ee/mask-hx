@@ -1,75 +1,76 @@
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-use crate::config;
+/// Basic structure that details a Haxe version.
+pub struct HaxeVersion(pub String);
 
-/// Simply constructs a path to a [Haxe](https://haxe.org).
-///
-/// Paths to [Haxe](https://haxe.org) versions are passed to
-/// this function. Do note that this does not check if they
-/// actually exist; for this purpose, [is_haxe_version_installed]
-/// uses this function to simply construct the path, and also
-/// checks the existence of the path.
-pub fn haxe_path(version: &str) -> Result<PathBuf, Error> {
-    let home: Option<PathBuf> = std::env::home_dir();
+impl HaxeVersion {
+    /// Gets a path to this Haxe version.
+    ///
+    /// Do be aware that this method does **not** check whether or not the path
+    /// is valid. Instead, you should use
+    /// [get_path_installed](#method.get_path_installed) for this purpose,
+    /// which will produce an [Error] if the path does not contain a valid Haxe
+    /// installation.
+    pub fn get_path(&self) -> Result<PathBuf, Error> {
+        let home: Option<PathBuf> = std::env::home_dir();
 
-    match home {
-        Some(buf_val) => {
-            let mut buf: PathBuf = buf_val.clone();
-
-            buf.push(".haxe");
-            buf.push(version);
-
-            Ok(buf)
+        if let Some(mut buffer) = home {
+            buffer.push(".haxe");
+            buffer.push(&self.0);
+            return Ok(PathBuf::new());
         }
-        None => Err(Error::new(
+        Err(Error::new(
             ErrorKind::NotFound,
             "Home directory not accessible",
-        )),
+        ))
     }
-}
 
-/// Checks if a Haxe version is installed.
-///
-/// Haxe versions are installed in the `~/.haxe/` directory, where
-/// `~` is defined as the home directory as in UNIX terms.
-/// The version number will be searched for in the `~/.haxe/`
-/// directory, and if it's found as a directory and the standard
-/// library is found under there, then [fetcher](..) will consider it to
-/// be valid.
-pub fn is_haxe_version_installed(version: &str) -> Result<bool, Error> {
-    match haxe_path(version) {
-        Ok(path) => match path.try_exists() {
-            Ok(_) => {
-                let mut path = path;
+    /// Checks if a Haxe version is properly installed, and returns its path if it is.
+    ///
+    /// This works the same as [get_path](#method.get_path), but checks for the
+    /// existence of both the Haxe version and its standard library before
+    /// proceeding to return the path.
+    pub fn get_path_installed(&self) -> Result<PathBuf, Error> {
+        let mut path: PathBuf = self.get_path()?;
+        return if let Ok(exists) = path.try_exists() {
+            if exists {
                 path.push("std");
-                match path.try_exists() {
-                    Ok(exists) => Ok(exists),
-                    Err(_) => Err(Error::new(
+                if let Ok(exists) = path.try_exists() {
+                    return if exists {
+                        Ok(path)
+                    } else {
+                        Err(Error::new(
+                            ErrorKind::NotFound,
+                            format!(
+                                "Haxe version {} exists, but does not have a standard library",
+                                self.0
+                            ),
+                        ))
+                    };
+                } else {
+                    Err(Error::new(
                         ErrorKind::NotFound,
                         format!(
-                            "Standard library for Haxe version {} could not be found",
-                            version
+                            "Haxe version {} could be validated for existence, but not its standard library",
+                            self.0
                         ),
-                    )),
+                    ))
                 }
+            } else {
+                Err(Error::new(
+                    ErrorKind::NotFound,
+                    format!("Haxe version {} was not found", self.0),
+                ))
             }
-            Err(_) => Err(Error::new(
+        } else {
+            Err(Error::new(
                 ErrorKind::NotFound,
-                format!("Haxe version {} could not be found", version),
-            )),
-        },
-        Err(e) => Err(e),
-    }
-}
-
-/// Checks if a configuration file's Haxe version is valid.
-///
-/// This acts the same as [is_haxe_version_installed], but instead
-/// reads the version from a configuration file using [config].
-pub fn is_config_version_installed() -> Result<bool, Error> {
-    match config::read() {
-        Ok(config) => is_haxe_version_installed(config.as_str()),
-        Err(e) => Err(e),
+                format!(
+                    "Haxe version {} could not be validated for existence",
+                    self.0
+                ),
+            ))
+        };
     }
 }
