@@ -9,6 +9,3 @@ license = "MIT"
 homepage = "https://codeberg.org/r6915ee/mask-hx"
 repository = "https://codeberg.org/r6915ee/mask-hx"
 keywords = ["haxe", "version", "development", "library", "hx"]
-
-[lib]
-path = "src/mask.rs"
