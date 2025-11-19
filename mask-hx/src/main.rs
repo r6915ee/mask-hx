@@ -31,6 +31,11 @@ fn handle_commands() -> ArgMatches {
                 .action(ArgAction::Set)
                 .value_name("HAXE_VERSION"),
         )
+        .arg(
+            arg!(-c --config "Specify a configuration file")
+                .action(ArgAction::Set)
+                .value_name("CONFIG"),
+        )
         .subcommand(
             Command::new("check")
                 .about("Checks whether or not a Haxe version is installed")
