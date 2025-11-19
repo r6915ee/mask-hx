@@ -13,6 +13,7 @@
       clippy
       neko
       gcc
+      pre-commit
     ];
 
   RUST_BACKTRACE = 1;
