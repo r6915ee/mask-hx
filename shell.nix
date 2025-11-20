@@ -14,6 +14,9 @@
       neko
       gcc
       pre-commit
+      just
+      just-formatter
+      just-lsp
     ];
 
   RUST_BACKTRACE = 1;
