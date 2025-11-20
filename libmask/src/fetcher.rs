@@ -18,7 +18,7 @@ impl HaxeVersion {
         if let Some(mut buffer) = home {
             buffer.push(".haxe");
             buffer.push(&self.0);
-            return Ok(PathBuf::new());
+            return Ok(buffer);
         }
         Err(Error::new(
             ErrorKind::NotFound,

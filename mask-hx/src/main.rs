@@ -7,21 +7,11 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{env, io::Error, path::PathBuf, process};
+use std::{env, process};
 
-use clap::{ArgAction, ArgMatches, Command, arg, command, parser::ValuesRef};
+use clap::{ArgAction, ArgMatches, Command, arg, command};
 
-use libmask::{config::Config, fetcher::HaxeVersion, interactive};
-
-/// Defines the final output of `mask-hx`.
-struct CommandResult {
-    /// The message to print when `mask-hx` finishes.
-    message: String,
-    /// The exit status code of `mask-hx`.
-    code: i32,
-    /// Display the exit message, even if the exit status code is 0.
-    force: bool,
-}
+use libmask::{config::Config, fetcher::HaxeVersion};
 
 /// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
@@ -97,49 +87,49 @@ fn handle_commands() -> ArgMatches {
 /// This handles the arguments, as well as how the program should exit.
 fn main() {
     let matches: ArgMatches = handle_commands();
+    let mut message: Box<String> = Box::new(
+        "invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
+    );
+    let mut exit_code: i32 = 0;
+    let mut force_exit_log: bool = false;
 
-    let result: CommandResult;
     let config: Config;
 
     if let Some(version) = matches.get_one::<String>("explicit") {
         config = Config(HaxeVersion(version.clone()));
     } else if let Some(version) = matches.get_one::<String>("config") {
         config = Config::new(Some(version)).unwrap_or(Config::default());
+    } else if let Ok(data) = env::var("MASK_VERSION") {
+        config = Config(HaxeVersion(data));
+    } else if let Ok(data) = Config::new(None) {
+        config = data;
     } else {
-        if let Ok(data) = env::var("MASK_VERSION") {
-            config = Config(HaxeVersion(data));
-        } else {
-            config = Config::default();
-        }
+        println!("mask-hx: no Haxe version specified, quitting...");
+        process::exit(2);
     }
 
     if let Some(_) = matches.subcommand_matches("check") {
-        result = match config.0.get_path_installed() {
-            Ok(data) => {
-                todo!()
+        match config.0.get_path_installed() {
+            Ok(_) => {
+                message = Box::new(format!("Haxe version {} is ready to use", config.0.0));
+                force_exit_log = true;
             }
-            Err(e) => CommandResult {
-                message: e.to_string(),
-                code: e.kind() as i32,
-                force: false,
-            },
-        };
-    } else if let Some(matches) = matches.subcommand_matches("switch") {
-    } else if let Some(matches) = matches.subcommand_matches("exec") {
-    } else if let Some(matches) = matches.subcommand_matches("lib") {
-    } else {
-        result = CommandResult {
-            message: String::from(
-                "invalid subcommand, or no subcommand was passed; use 'mask-hx help' for a list of commands",
-            ),
-            code: 22,
-            force: false,
+            Err(e) => {
+                message = Box::new(format!("{}", e));
+                exit_code = 2;
+            }
         }
+    } else if let Some(_) = matches.subcommand_matches("switch") {
+        todo!()
+    } else if let Some(_) = matches.subcommand_matches("exec") {
+        todo!()
+    } else if let Some(_) = matches.subcommand_matches("lib") {
+        todo!()
+    };
+
+    if exit_code != 0 || force_exit_log {
+        println!("mask-hx: {}", message);
     }
 
-    if result.code != 0 || result.force {
-        println!("mask: {}", result.message);
-    }
-
-    process::exit(result.code);
+    process::exit(exit_code);
 }
