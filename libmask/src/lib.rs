@@ -23,6 +23,23 @@ use std::process::{Command, Output, Stdio};
 pub struct HaxeVersion(pub String);
 
 impl HaxeVersion {
+    /// Checks if a Haxe version exists, and returns its path.
+    ///
+    /// This is used internally by `libmask` for methods that cannot use `self`.
+    pub fn get_version(path: &str) -> Result<PathBuf, Error> {
+        let home: Option<PathBuf> = std::env::home_dir();
+
+        if let Some(mut buffer) = home {
+            buffer.push(".haxe");
+            buffer.push(path);
+            return Ok(buffer);
+        }
+        Err(Error::new(
+            ErrorKind::NotFound,
+            "Home directory not accessible",
+        ))
+    }
+
     /// Gets a path to this Haxe version.
     ///
     /// Do be aware that this method does **not** check whether or not the path
@@ -30,18 +47,12 @@ impl HaxeVersion {
     /// [get_path_installed](#method.get_path_installed) for this purpose,
     /// which will produce an [Error] if the path does not contain a valid Haxe
     /// installation.
+    ///
+    /// Internally, this method is the same as
+    /// [get_version](#method.get_version) with the [String] in the tuple
+    /// struct passed.
     pub fn get_path(&self) -> Result<PathBuf, Error> {
-        let home: Option<PathBuf> = std::env::home_dir();
-
-        if let Some(mut buffer) = home {
-            buffer.push(".haxe");
-            buffer.push(&self.0);
-            return Ok(buffer);
-        }
-        Err(Error::new(
-            ErrorKind::NotFound,
-            "Home directory not accessible",
-        ))
+        HaxeVersion::get_version(&self.0)
     }
 
     /// Works the same as [get_path](#method.get_path), but returns the path to the standard library.
@@ -115,6 +126,18 @@ impl Config {
     pub fn write(path: Option<&str>, version: &str) -> Result<(), Error> {
         fs::write(path.unwrap_or("./.mask"), version)?;
         Ok(())
+    }
+
+    /// Operates under the same conditions as [write](#method.write), except checking the Haxe version's existence beforehand.
+    pub fn safe_write(path: Option<&str>, version: &str) -> Result<(), Error> {
+        if HaxeVersion::get_version(version)?.try_exists()? {
+            Config::write(path, version)
+        } else {
+            Err(Error::new(
+                ErrorKind::NotFound,
+                format!("Haxe version {} doesn't exist", version),
+            ))
+        }
     }
 }
 

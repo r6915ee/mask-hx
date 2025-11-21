@@ -157,7 +157,7 @@ fn main() {
             }
         }
     } else if let Some(data) = matches.subcommand_matches("switch") {
-        match Config::write(
+        match Config::safe_write(
             config_path,
             data.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
         ) {
@@ -171,6 +171,7 @@ fn main() {
             }
             Err(e) => {
                 *message = e.to_string();
+                exit_code = 1;
             }
         }
     } else if let Some(params) = matches.subcommand_matches("exec") {
