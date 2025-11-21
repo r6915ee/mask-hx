@@ -119,11 +119,11 @@ fn main() {
 
     if let Some(version) = matches.get_one::<String>("explicit") {
         config = Config(HaxeVersion(version.clone()));
+    } else if let Ok(data) = env::var("MASK_VERSION") {
+        config = Config(HaxeVersion(data));
     } else if let Some(version) = matches.get_one::<String>("config") {
         config = Config::new(Some(version)).unwrap_or_default();
         config_path = Some(version.as_str());
-    } else if let Ok(data) = env::var("MASK_VERSION") {
-        config = Config(HaxeVersion(data));
     } else if let Ok(data) = Config::new(None) {
         config = data;
     } else {
