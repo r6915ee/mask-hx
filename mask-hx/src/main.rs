@@ -115,7 +115,7 @@ fn main() {
                 force_exit_log = true;
             }
             Err(e) => {
-                message = Box::new(format!("{}", e));
+                message = Box::new(e.to_string());
                 exit_code = 2;
             }
         }
