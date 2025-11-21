@@ -26,52 +26,29 @@ impl HaxeVersion {
         ))
     }
 
+    /// Works the same as [get_path](#method.get_path), but returns the path to the standard library.
+    pub fn get_std_path(&self) -> Result<PathBuf, Error> {
+        let mut buf: PathBuf = self.get_path()?;
+        buf.push("std");
+        Ok(buf)
+    }
+
     /// Checks if a Haxe version is properly installed, and returns its path if it is.
     ///
     /// This works the same as [get_path](#method.get_path), but checks for the
     /// existence of both the Haxe version and its standard library before
     /// proceeding to return the path.
     pub fn get_path_installed(&self) -> Result<PathBuf, Error> {
-        let path: PathBuf = self.get_path()?;
-        return if let Ok(exists) = path.try_exists() {
-            if exists {
-                let mut std_path: PathBuf = path.clone();
-                std_path.push("std");
-                if let Ok(exists) = std_path.try_exists() {
-                    return if exists {
-                        Ok(path)
-                    } else {
-                        Err(Error::new(
-                            ErrorKind::NotFound,
-                            format!(
-                                "Haxe version {} exists, but does not have a standard library",
-                                self.0
-                            ),
-                        ))
-                    };
-                } else {
-                    Err(Error::new(
-                        ErrorKind::NotFound,
-                        format!(
-                            "Haxe version {} could be validated for existence, but not its standard library",
-                            self.0
-                        ),
-                    ))
-                }
-            } else {
-                Err(Error::new(
-                    ErrorKind::NotFound,
-                    format!("Haxe version {} was not found", self.0),
-                ))
-            }
+        if self.get_std_path()?.try_exists()? == true {
+            Ok(self.get_std_path()?)
         } else {
             Err(Error::new(
                 ErrorKind::NotFound,
                 format!(
-                    "Haxe version {} could not be validated for existence",
+                    "Haxe version {} could not be found using the standard library",
                     self.0
                 ),
             ))
-        };
+        }
     }
 }
