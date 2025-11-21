@@ -125,6 +125,8 @@ fn main() {
         todo!()
     } else if let Some(_) = matches.subcommand_matches("lib") {
         todo!()
+    } else {
+        force_exit_log = true;
     };
 
     if exit_code != 0 || force_exit_log {
