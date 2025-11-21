@@ -11,7 +11,7 @@ use std::{env, io::Error, process};
 
 use clap::{ArgAction, ArgMatches, Command, arg, command};
 
-use libmask::{config::Config, fetcher::HaxeVersion, interactive};
+use libmask::*;
 
 /// Give possible commands to [clap].
 fn handle_commands() -> ArgMatches {
@@ -104,7 +104,7 @@ fn main() {
             }
         }
 
-        match interactive::exec(args, config, Some(prog.to_string())) {
+        match haxe_exec(args, config, Some(prog.to_string())) {
             Ok(output) => Ok((
                 if output.status.code().is_none() {
                     format!("Successfully started {}, but program was interrupted", prog)
