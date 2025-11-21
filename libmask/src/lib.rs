@@ -112,7 +112,7 @@ impl Config {
     }
 
     /// Writes the configuration to a specified path.
-    pub fn write(&self, path: Option<&str>, version: &str) -> Result<(), Error> {
+    pub fn write(path: Option<&str>, version: &str) -> Result<(), Error> {
         fs::write(path.unwrap_or("./.mask"), version)?;
         Ok(())
     }
