@@ -45,8 +45,8 @@ impl Config {
     }
 
     /// Writes the configuration to a specified path.
-    pub fn write(self, path: Option<&str>) -> Result<(), Error> {
-        fs::write(Config::path(path.unwrap_or("4.3.7"))?, self.0.0)?;
+    pub fn write(&self, path: Option<&str>) -> Result<(), Error> {
+        fs::write(Config::path(path.unwrap_or("4.3.7"))?, &self.0.0)?;
         Ok(())
     }
 }
