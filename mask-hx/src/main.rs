@@ -94,8 +94,18 @@ fn main() {
     let mut exit_code: i32 = 0;
     let mut force_exit_log: bool = false;
 
-    let config: Config;
+    let config: Option<Config> = if let Some(version) = matches.get_one::<String>("explicit") {
+        Some(Config(HaxeVersion(version.clone())))
+    } else if let Ok(data) = env::var("MASK_VERSION") {
+        Some(Config(HaxeVersion(data)))
+    } else if let Some(version) = matches.get_one::<String>("config") {
+        config_path = Some(version.as_str());
+        Some(Config::new(Some(version)).unwrap_or_default())
+    } else {
+        Config::new(None).ok()
+    };
 
+    /// Shorthand method for executing a program.
     fn execute(params: &ArgMatches, config: Config, prog: &str) -> Result<(String, i32), Error> {
         let mut args: Vec<String> = Vec::new();
         if let Some(list) = params.get_many::<String>("ARGUMENTS") {
@@ -117,24 +127,28 @@ fn main() {
         }
     }
 
-    if let Some(version) = matches.get_one::<String>("explicit") {
-        config = Config(HaxeVersion(version.clone()));
-    } else if let Ok(data) = env::var("MASK_VERSION") {
-        config = Config(HaxeVersion(data));
-    } else if let Some(version) = matches.get_one::<String>("config") {
-        config = Config::new(Some(version)).unwrap_or_default();
-        config_path = Some(version.as_str());
-    } else if let Ok(data) = Config::new(None) {
-        config = data;
-    } else {
-        println!("mask-hx: no Haxe version specified, quitting...");
+    /// Checks the validity of a configuration, and exits if it is invalid.
+    fn check_config_validity(config: &Option<Config>) {
+        if let Some(data) = config {
+            if data.0.0.is_empty() {
+                println!("mask-hx: No Haxe version specified");
+            } else {
+                return;
+            }
+        } else {
+            println!(
+                "mask-hx: Impossible to construct valid configuration; \
+                for starters, use the --explicit flag to specify the version"
+            );
+        }
         process::exit(2);
     }
 
     if matches.subcommand_matches("check").is_some() {
-        match config.0.get_path_installed() {
+        check_config_validity(&config);
+        match config.as_ref().unwrap().0.get_path_installed() {
             Ok(_) => {
-                *message = format!("Haxe version {} is ready to use", config.0.0);
+                *message = format!("Haxe version {} is ready to use", config.unwrap().0.0);
                 force_exit_log = true;
             }
             Err(e) => {
@@ -143,7 +157,7 @@ fn main() {
             }
         }
     } else if let Some(data) = matches.subcommand_matches("switch") {
-        match config.write(
+        match Config::write(
             config_path,
             data.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
         ) {
@@ -160,14 +174,16 @@ fn main() {
             }
         }
     } else if let Some(params) = matches.subcommand_matches("exec") {
-        let results: (String, i32) = match execute(params, config, "haxe") {
+        check_config_validity(&config);
+        let results: (String, i32) = match execute(params, config.unwrap(), "haxe") {
             Ok(data) => data,
             Err(e) => (format!("Execution error: {}", e), 1),
         };
         *message = results.0;
         exit_code = results.1;
     } else if let Some(params) = matches.subcommand_matches("lib") {
-        let results: (String, i32) = match execute(params, config, "haxelib") {
+        check_config_validity(&config);
+        let results: (String, i32) = match execute(params, config.unwrap(), "haxelib") {
             Ok(data) => data,
             Err(e) => (format!("Execution error: {}", e), 1),
         };
