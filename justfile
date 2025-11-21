@@ -11,6 +11,10 @@ dev: (build "dev")
 # Build the "release" profile.
 release: (build "release")
 
+# Run the program.
+run:
+    cargo run
+
 # Trigger all tests.
 test:
     cargo test
@@ -35,4 +39,3 @@ doc:
 # Trigger doc recipe, and open  in target/doc.
 view-docs: doc
     ${HTTP_SERVER} target/doc
-
