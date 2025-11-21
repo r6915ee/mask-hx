@@ -9,7 +9,7 @@
 
 use std::{env, io::Error, process};
 
-use clap::{ArgAction, ArgMatches, Command, arg, command};
+use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
 
 use libmask::*;
 
@@ -46,7 +46,14 @@ fn handle_commands() -> ArgMatches {
                     and then switches the configuration to use that specified Haxe \
                     version.",
                 )
-                .arg(arg!(<HAXE_VERSION> "The Haxe version to switch to")),
+                .arg(arg!(<HAXE_VERSION> "The Haxe version to switch to"))
+                .arg(
+                    Arg::new("skip-check")
+                        .short('u')
+                        .long("skip-check")
+                        .help("Skips checking the existence of a Haxe installation")
+                        .action(ArgAction::SetTrue),
+                ),
         )
         .subcommand(
             Command::new("exec")
@@ -157,10 +164,12 @@ fn main() {
             }
         }
     } else if let Some(data) = matches.subcommand_matches("switch") {
-        match Config::safe_write(
-            config_path,
-            data.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
-        ) {
+        let store: Result<(), Error> = if data.get_flag("skip-check") {
+            Config::write(config_path, data.get_one::<String>("HAXE_VERSION").unwrap())
+        } else {
+            Config::safe_write(config_path, data.get_one::<String>("HAXE_VERSION").unwrap())
+        };
+        match store {
             Ok(_) => {
                 *message = format!(
                     "successfully switched config {} to use Haxe version {}",
