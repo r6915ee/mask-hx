@@ -32,11 +32,12 @@ impl HaxeVersion {
     /// existence of both the Haxe version and its standard library before
     /// proceeding to return the path.
     pub fn get_path_installed(&self) -> Result<PathBuf, Error> {
-        let mut path: PathBuf = self.get_path()?;
+        let path: PathBuf = self.get_path()?;
         return if let Ok(exists) = path.try_exists() {
             if exists {
-                path.push("std");
-                if let Ok(exists) = path.try_exists() {
+                let mut std_path: PathBuf = path.clone();
+                std_path.push("std");
+                if let Ok(exists) = std_path.try_exists() {
                     return if exists {
                         Ok(path)
                     } else {
