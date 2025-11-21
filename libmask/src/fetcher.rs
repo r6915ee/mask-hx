@@ -39,7 +39,7 @@ impl HaxeVersion {
     /// existence of both the Haxe version and its standard library before
     /// proceeding to return the path.
     pub fn get_path_installed(&self) -> Result<PathBuf, Error> {
-        if self.get_std_path()?.try_exists()? == true {
+        if self.get_std_path()?.try_exists()? {
             Ok(self.get_path()?)
         } else {
             Err(Error::new(

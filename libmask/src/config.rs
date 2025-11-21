@@ -21,7 +21,7 @@ impl Config {
     /// fallback path, `./.mask`, being used.
     pub fn path(config_location: &str) -> Result<&Path, Error> {
         let path: &Path = Path::new(config_location);
-        if path.try_exists()? == true {
+        if path.try_exists()? {
             Ok(path)
         } else {
             Err(Error::new(
