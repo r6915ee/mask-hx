@@ -90,6 +90,7 @@ fn main() {
     let mut message: Box<String> = Box::new(
         "invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
     );
+    let mut config_path: Option<&str> = None;
     let mut exit_code: i32 = 0;
     let mut force_exit_log: bool = false;
 
@@ -99,6 +100,7 @@ fn main() {
         config = Config(HaxeVersion(version.clone()));
     } else if let Some(version) = matches.get_one::<String>("config") {
         config = Config::new(Some(version)).unwrap_or(Config::default());
+        config_path = Some(version.as_str());
     } else if let Ok(data) = env::var("MASK_VERSION") {
         config = Config(HaxeVersion(data));
     } else if let Ok(data) = Config::new(None) {
@@ -119,8 +121,23 @@ fn main() {
                 exit_code = 2;
             }
         }
-    } else if let Some(_) = matches.subcommand_matches("switch") {
-        todo!()
+    } else if let Some(data) = matches.subcommand_matches("switch") {
+        match config.write(
+            config_path,
+            data.get_one::<String>("HAXE_VERSION").unwrap().as_str(),
+        ) {
+            Ok(_) => {
+                message = Box::new(format!(
+                    "successfully switched config {} to use Haxe version {}",
+                    config_path.unwrap_or("./.mask"),
+                    data.get_one::<String>("HAXE_VERSION").unwrap()
+                ));
+                force_exit_log = true;
+            }
+            Err(e) => {
+                message = Box::new(e.to_string());
+            }
+        }
     } else if let Some(_) = matches.subcommand_matches("exec") {
         todo!()
     } else if let Some(_) = matches.subcommand_matches("lib") {
