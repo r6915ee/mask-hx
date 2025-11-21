@@ -1,4 +1,6 @@
-{pkgs ? import <nixpkgs> {}}:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 let
   mainPkg = pkgs.rustPlatform.buildRustPackage {
     pname = "mask-hx";
@@ -8,11 +10,11 @@ let
   };
 in
 pkgs.buildFHSEnv rec {
-    name = "mask-hx-fhs";
-    executableName = "mask-hx";
-    targetPkgs = pkgs: [
-      mainPkg
-      pkgs.neko
-    ];
-    runScript = "${mainPkg}/bin/${executableName}";
+  name = "mask-hx-fhs";
+  executableName = "mask-hx";
+  targetPkgs = pkgs: [
+    mainPkg
+    pkgs.neko
+  ];
+  runScript = "${mainPkg}/bin/${executableName}";
 }
