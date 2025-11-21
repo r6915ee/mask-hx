@@ -2,7 +2,7 @@
 name = "mask-hx"
 description = "Generic Haxe version manager"
 edition = "2024"
-version = "0.1.4"
+version = "0.2.0"
 authors = ["r6915ee"]
 categories = ["command-line-utilities", "config", "development-tools"]
 license = "MIT"
@@ -11,8 +11,8 @@ repository = "https://codeberg.org/r6915ee/mask-hx"
 keywords = ["haxe", "version", "development", "cli", "hx"]
 
 [dependencies]
-clap = { version = "4.5.43", features = ["cargo"] }
-libmask = { version = "0.1.3", path = "../libmask" }
+clap = { version = "4.5.53", features = ["cargo"] }
+libmask = { version = "0.2.0", path = "../libmask" }
 
 [dev-dependencies]
-libmask = { version = "0.1.3", path = "../libmask" }
+libmask = { version = "0.2.0", path = "../libmask" }
