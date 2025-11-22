@@ -98,7 +98,7 @@ fn main() {
         "invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
     );
     let mut config_path: Option<&str> = None;
-    let mut exit_code: i32 = 0;
+    let mut exit_code: i32 = 1;
     let mut force_exit_log: bool = false;
 
     let config: Option<Config> = if let Some(version) = matches.get_one::<String>("explicit") {
@@ -156,6 +156,7 @@ fn main() {
         match config.as_ref().unwrap().0.get_path_installed() {
             Ok(_) => {
                 *message = format!("Haxe version {} is ready to use", config.unwrap().0.0);
+                exit_code = 0;
                 force_exit_log = true;
             }
             Err(e) => {
@@ -176,6 +177,7 @@ fn main() {
                     config_path.unwrap_or("./.mask"),
                     data.get_one::<String>("HAXE_VERSION").unwrap()
                 );
+                exit_code = 0;
                 force_exit_log = true;
             }
             Err(e) => {
@@ -199,12 +201,12 @@ fn main() {
         };
         *message = results.0;
         exit_code = results.1;
-    } else {
-        force_exit_log = true;
     };
 
-    if exit_code != 0 || force_exit_log {
+    if force_exit_log {
         println!("mask-hx: {}", *message);
+    } else if exit_code != 0 {
+        eprintln!("mask-hx: {}", *message);
     }
 
     process::exit(exit_code);
