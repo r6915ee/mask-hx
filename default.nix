@@ -4,7 +4,7 @@
 let
   mainPkg = pkgs.rustPlatform.buildRustPackage {
     pname = "mask-hx";
-    version = "0.2.0";
+    version = "0.2.1";
     src = pkgs.lib.cleanSource ./.;
     cargoLock.lockFile = ./Cargo.lock;
   };
