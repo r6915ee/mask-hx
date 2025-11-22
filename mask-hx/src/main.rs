@@ -126,7 +126,7 @@ fn main() {
                 if output.status.code().is_none() {
                     format!("Successfully started {}, but program was interrupted", prog)
                 } else {
-                    "".to_string()
+                    format!("Successfully started {}, but program returned error", prog)
                 },
                 output.status.code().unwrap_or(143),
             )),
