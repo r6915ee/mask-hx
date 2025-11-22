@@ -35,24 +35,17 @@ file:
 
 ```nix
 { pkgs, ... }:
-let
-  # . . .
-  mask-hx = pkgs.callPackage "${pkgs.fetchgit {
-    url = "https://codeberg.org/r6915ee/mask-hx.git";
-    rev = "v0.2.0";
-    # When updating, make sure to update the hash as well, due to the way
-    # pkgs.fetchgit works.
-    hash = "";
-  }}/package.nix";
-  # . . .
-in
 {
   # . . .
   environment.systemPackages = [
     # . . .
-    # Add mask-hx to be introduced to the Nix store.
-    mask-hx
-    # . . .
+    (pkgs.callPackage "${pkgs.fetchgit {
+      url = "https://codeberg.org/r6915ee/mask-hx.git";
+      rev = "v0.2.0";
+      # Ensure that you update the hash when performing an update and
+      # installing for the first time!
+      hash = "";
+    }}/default.nix" {})
   ];
   # . . .
 }
