@@ -173,8 +173,8 @@ fn main() {
         match store {
             Ok(_) => {
                 *message = format!(
-                    "successfully switched config {} to use Haxe version {}",
-                    config_path.unwrap_or("./.mask"),
+                    "successfully switched config \"{}\" to use Haxe version {}",
+                    config_path.unwrap_or(".mask"),
                     data.get_one::<String>("HAXE_VERSION").unwrap()
                 );
                 exit_code = 0;
