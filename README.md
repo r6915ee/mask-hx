@@ -159,8 +159,6 @@ to function properly.
 
 ## Development
 
-The Nix shell will automatically drop in most tools necessary for development.
-
 `mask-hx` is developed in [Rust](https://rust-lang.org/). Although it's
 possible to develop using only standalone packages, most users may want to go
 with Rustup to manage Rust, should they not be on a system that requires
@@ -183,20 +181,7 @@ just doc # cargo test --doc; cargo doc
 
 ### Contributing
 
-First, ensure you have [`pre-commit`](https://pre-commit.com/) installed on
-your system. You will then need to install all of the hooks:
-
-```sh
-pre-commit install
-pre-commit install --hook-type commit-msg
-```
-
-This ensures that you perform tests, check your commit messages to follow
-[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), and
-more before each commit.
-
-Finally, you can fork and contribute as you normally would with any other Git
-project.
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Tips and tricks
 
