@@ -29,7 +29,7 @@ cargo install --git https://codeberg.org/r6915ee/mask-hx.git
 due to the lack of the usage of Cargo as a package manager, and the fact that
 a specialized FHS environment needs to be built.
 
-The repository contains a Nix package in the [`package.nix`](./package.nix)
+The repository contains a Nix package in the [`default.nix`](./default.nix)
 file that can be loaded using the following example in the `configuration.nix`
 file:
 
