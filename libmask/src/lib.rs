@@ -88,7 +88,7 @@ pub struct Config(pub HaxeVersion);
 impl Config {
     /// This reads a sample configuration from the disk, and returns it if it's valid as a [Result].
     pub fn new(path: Option<&str>) -> Result<Config, Error> {
-        let version: String = Config::read_from_file(path.unwrap_or("./.mask"))?;
+        let version: String = Config::read_from_file(path.unwrap_or(".mask"))?;
         Ok(Config(HaxeVersion(version)))
     }
 
@@ -96,7 +96,7 @@ impl Config {
     ///
     /// Configuration paths are typically encased in [`Option`]s to simulate
     /// default parameters, where leaving [`None`] as the value results in the
-    /// fallback path, `./.mask`, being used.
+    /// fallback path, `.mask`, being used.
     pub fn path(config_location: &str) -> Result<&Path, Error> {
         let path: &Path = Path::new(config_location);
         if path.try_exists()? {
@@ -104,7 +104,10 @@ impl Config {
         } else {
             Err(Error::new(
                 ErrorKind::NotFound,
-                "Configuration file's existence could not be validated",
+                format!(
+                    "The existence of configuration file {} could not be validated",
+                    path.display()
+                ),
             ))
         }
     }
@@ -124,7 +127,7 @@ impl Config {
 
     /// Writes the configuration to a specified path.
     pub fn write(path: Option<&str>, version: &str) -> Result<(), Error> {
-        fs::write(path.unwrap_or("./.mask"), version)?;
+        fs::write(path.unwrap_or(".mask"), version)?;
         Ok(())
     }
 
