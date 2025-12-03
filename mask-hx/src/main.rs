@@ -7,7 +7,7 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{env, io::Error, process::exit};
+use std::{borrow::Cow, env, io::Error, process::exit};
 
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
 
@@ -89,6 +89,18 @@ fn handle_commands() -> ArgMatches {
         .get_matches()
 }
 
+macro_rules! config_from_path {
+    ( $path: expr ) => {
+        Some(match Config::new(Some($path)) {
+            Ok(data) => data,
+            Err(e) => {
+                eprintln!("mask-hx: {}", e);
+                exit(2);
+            }
+        })
+    };
+}
+
 /// The entry point of the program.
 ///
 /// This handles the arguments, as well as how the program should exit.
@@ -97,7 +109,7 @@ fn main() {
     let mut message: Box<String> = Box::new(
         "invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
     );
-    let mut config_path: Option<&str> = None;
+    let mut config_path: Option<Cow<str>> = None;
     let mut exit_code: i32 = 1;
     let mut force_exit_log: bool = false;
 
@@ -105,17 +117,17 @@ fn main() {
         Some(Config(HaxeVersion(version.clone())))
     } else if let Ok(data) = env::var("MASK_VERSION") {
         Some(Config(HaxeVersion(data)))
-    } else if let Some(version) = matches.get_one::<String>("config") {
-        config_path = Some(version.as_str());
-        Some(match Config::new(Some(version)) {
-            Ok(data) => data,
-            Err(e) => {
-                eprintln!("mask-hx: {}", e);
-                exit(2);
-            }
-        })
+    } else if let Some(config) = matches.get_one::<String>("config") {
+        config_path = Some(Cow::from(config));
+        config_from_path!(config)
     } else {
-        Config::new(None).ok()
+        match &env::var("MASK_CONFIG") {
+            Ok(config) => {
+                config_path = Some(Cow::from(config.clone()));
+                config_from_path!(config.as_str())
+            }
+            _ => Config::new(None).ok(),
+        }
     };
 
     /// Shorthand method for executing a program.
@@ -172,15 +184,21 @@ fn main() {
         }
     } else if let Some(data) = matches.subcommand_matches("switch") {
         let store: Result<(), Error> = if data.get_flag("skip-check") {
-            Config::write(config_path, data.get_one::<String>("HAXE_VERSION").unwrap())
+            Config::write(
+                config_path.as_deref(),
+                data.get_one::<String>("HAXE_VERSION").unwrap(),
+            )
         } else {
-            Config::safe_write(config_path, data.get_one::<String>("HAXE_VERSION").unwrap())
+            Config::safe_write(
+                config_path.as_deref(),
+                data.get_one::<String>("HAXE_VERSION").unwrap(),
+            )
         };
         match store {
             Ok(_) => {
                 *message = format!(
                     "successfully switched config \"{}\" to use Haxe version {}",
-                    config_path.unwrap_or(".mask"),
+                    config_path.as_deref().unwrap_or(".mask"),
                     data.get_one::<String>("HAXE_VERSION").unwrap()
                 );
                 exit_code = 0;
