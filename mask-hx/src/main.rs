@@ -40,7 +40,7 @@ fn handle_commands() -> ArgMatches {
         )
         .subcommand(
             Command::new("switch")
-                .about("Changes the configuration to use a different, valid Haxe version")
+                .about("Changes the configuration to use a different Haxe version")
                 .long_about(
                     "This initially checks the validity of a Haxe installation, \
                     and then switches the configuration to use that specified Haxe \
