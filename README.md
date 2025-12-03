@@ -162,7 +162,7 @@ to function properly.
 `mask-hx` is developed in [Rust](https://rust-lang.org/). Although it's
 possible to develop using only standalone packages, most users may want to go
 with Rustup to manage Rust, should they not be on a system that requires
-packages to be from a single package manager.
+packages to be from a single source, like [NixOS](https://nixos.org/).
 
 ### Building
 
