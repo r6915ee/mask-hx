@@ -107,7 +107,7 @@ macro_rules! config_from_path {
 fn main() {
     let matches: ArgMatches = handle_commands();
     let mut message: Box<String> = Box::new(
-        "invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
+        "Invalid subcommand or no subcommand was passed; try running mask-hx help".to_string(),
     );
     let mut config_path: Option<Cow<str>> = None;
     let mut exit_code: i32 = 1;
