@@ -104,10 +104,7 @@ impl Config {
         } else {
             Err(Error::new(
                 ErrorKind::NotFound,
-                format!(
-                    "The existence of configuration file {} could not be validated",
-                    path.display()
-                ),
+                format!("Configuration file {} does not exist", path.display()),
             ))
         }
     }
