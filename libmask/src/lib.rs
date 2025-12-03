@@ -143,6 +143,7 @@ impl Config {
     }
 }
 
+#[cfg(debug_assertions)]
 impl Default for Config {
     fn default() -> Config {
         Config(HaxeVersion("4.3.7".to_string()))
