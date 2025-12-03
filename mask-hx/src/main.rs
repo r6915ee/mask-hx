@@ -138,12 +138,12 @@ fn main() {
     fn check_config_validity(config: &Option<Config>) {
         if let Some(data) = config {
             if data.0.0.is_empty() {
-                println!("mask-hx: No Haxe version specified");
+                eprintln!("mask-hx: No Haxe version specified");
             } else {
                 return;
             }
         } else {
-            println!(
+            eprintln!(
                 "mask-hx: Impossible to construct valid configuration; \
                 for starters, use the --explicit flag to specify the version"
             );
