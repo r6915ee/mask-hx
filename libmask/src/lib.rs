@@ -96,7 +96,9 @@ impl Config {
     ///
     /// Configuration paths are typically encased in [`Option`]s to simulate
     /// default parameters, where leaving [`None`] as the value results in the
-    /// fallback path, `.mask`, being used.
+    /// fallback path, `.mask`, being used. This method will instead return the
+    /// raw path through a [`Result`], as this method internally uses
+    /// [`Path.try_exists`](Path#method.try_exists).
     pub fn path(config_location: &str) -> Result<&Path, Error> {
         let path: &Path = Path::new(config_location);
         if path.try_exists()? {
