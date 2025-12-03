@@ -106,7 +106,7 @@ impl Config {
         } else {
             Err(Error::new(
                 ErrorKind::NotFound,
-                format!("Configuration file {} does not exist", path.display()),
+                format!("Configuration file \"{}\" does not exist", path.display()),
             ))
         }
     }
@@ -165,7 +165,7 @@ pub fn haxe_exec(args: Vec<String>, config: Config, prog: Option<String>) -> Res
                 Err(Error::new(
                     ErrorKind::NotFound,
                     format!(
-                        "Program at file location {} does not exist",
+                        "Program at file location \"{}\" does not exist",
                         prog_buf.display()
                     ),
                 ))
