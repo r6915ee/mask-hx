@@ -7,7 +7,7 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{env, io::Error, process};
+use std::{env, io::Error, process::exit};
 
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
 
@@ -107,7 +107,13 @@ fn main() {
         Some(Config(HaxeVersion(data)))
     } else if let Some(version) = matches.get_one::<String>("config") {
         config_path = Some(version.as_str());
-        Some(Config::new(Some(version)).unwrap_or_default())
+        Some(match Config::new(Some(version)) {
+            Ok(data) => data,
+            Err(e) => {
+                eprintln!("mask-hx: {}", e);
+                exit(2);
+            }
+        })
     } else {
         Config::new(None).ok()
     };
@@ -148,7 +154,7 @@ fn main() {
                 for starters, use the --explicit flag to specify the version"
             );
         }
-        process::exit(2);
+        exit(2);
     }
 
     if matches.subcommand_matches("check").is_some() {
@@ -209,5 +215,5 @@ fn main() {
         eprintln!("mask-hx: {}", *message);
     }
 
-    process::exit(exit_code);
+    exit(exit_code);
 }
