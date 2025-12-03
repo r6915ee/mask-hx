@@ -110,11 +110,12 @@ can simply be files that contain the version number as a string. They are
 useful for collaborative projects.
 
 In addition, you can also specify an external configuration file using the
-`config` flag. You can operate the program using the file provided instead of
-the default `.mask` file.
+`config` flag, or the `MASK_CONFIG` environment variable. You can operate the
+program using the file provided instead of the default `.mask` file.
 
 ```sh
-mask-hx -c .lib.mask 4.2.5
+mask-hx -c .lib.mask switch 4.2.5 # config flag
+MASK_CONFIG=.lib.mask mask-hx switch 4.2.5 # MASK_CONFIG environment variable
 ```
 
 The `MASK_VERSION` environment variable is a particularly special case.
