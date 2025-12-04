@@ -151,7 +151,8 @@ mask-hx lib help
 Both of these subcommands also override the `PATH` environment variable
 for the programs they invoke to make sure that the Haxe and Haxelib
 binaries that may be used during dependency installation are the right
-ones, allowing certain frameworks like [Lime](https://lime.openfl.org/)
+ones, allowing certain programs like [Lime](https://lime.openfl.org/)'s
+project system and the [hxp](https://github.com/openfl/hxp) build script system
 to function properly.
 
 > [!NOTE]
