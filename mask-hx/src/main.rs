@@ -89,6 +89,7 @@ fn handle_commands() -> ArgMatches {
         .get_matches()
 }
 
+/// Simple macro that constructs a configuration file from a path.
 macro_rules! config_from_path {
     ( $path: expr ) => {
         match Config::new(Some($path)) {
