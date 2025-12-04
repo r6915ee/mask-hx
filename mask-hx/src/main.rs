@@ -161,7 +161,8 @@ fn main() {
         } else {
             eprintln!(
                 "mask-hx: Impossible to construct valid configuration; \
-                for starters, use the --explicit flag to specify the version"
+                for starters, use the --explicit flag to specify the version, \
+                or create a configuration file using the switch subcommand"
             );
         }
         exit(2);
