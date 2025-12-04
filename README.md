@@ -203,7 +203,10 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
   If you're using shell scripts, then a few examples for each command are
   available in the `examples/` subfolder of the repository, supporting typical
   Bash. Alongside this, you gain the benefit of certain programs like
-  [Starship](https://starship.rs/) displaying the current Haxe version.
+  [Starship](https://starship.rs/) displaying the current Haxe version, but
+  more importantly, seamless integration with other Haxe development tools;
+  examples of such include IDEs, application plugins, and build tools like
+  Make.
 * The program contains `libmask`, the main functionality behind most of the
   work. `libmask` is a separate crate that can be used in other projects under
   the terms of the [MIT license](LICENSE), just like `mask-hx`.
