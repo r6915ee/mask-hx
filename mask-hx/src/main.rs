@@ -91,13 +91,10 @@ fn handle_commands() -> ArgMatches {
 
 macro_rules! config_from_path {
     ( $path: expr ) => {
-        Some(match Config::new(Some($path)) {
-            Ok(data) => data,
-            Err(e) => {
-                eprintln!("mask-hx: {}", e);
-                exit(2);
-            }
-        })
+        match Config::new(Some($path)) {
+            Ok(data) => Some(data),
+            Err(_) => None,
+        }
     };
 }
 
