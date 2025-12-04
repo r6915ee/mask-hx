@@ -193,6 +193,12 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 * Including a `.mask` file in version control is especially useful when you
   and your team are using a remote repository. They can make sure that everyone
   is using the right Haxe version.
+* Custom configuration files are particularly useful for monorepos or similar
+  that are designed to have each component support a different minimum Haxe
+  version; one example would be a library using version 4.2.5 and the main
+  application using 4.3.7. `mask-hx` can be configured on the fly to use
+  custom configuration files instead of the default by specifying the `config` 
+  flag or using the `MASK_CONFIG` environment variable.
 * You can set up command-line aliases to `mask-hx`'s respective subcommands.
   If you're using shell scripts, then a few examples for each command are
   available in the `examples/` subfolder of the repository, supporting typical
