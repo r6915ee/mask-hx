@@ -128,22 +128,37 @@ fn main() {
         }
     };
 
+    /// Parses an [ArgMatches] for the `ARGUMENTS` argument, and returns it.
+    macro_rules! parse_args {
+        ( $x: expr ) => {{
+            let mut args: Vec<String> = Vec::new();
+            if let Some(list) = $x.get_many::<String>("ARGUMENTS") {
+                for i in list {
+                    args.push(i.to_string());
+                }
+            }
+            args
+        }};
+    }
+
+    /// Generates a basic execution message.
+    macro_rules! exec_message {
+        ( $x: expr, $y: expr ) => {
+            if $x.is_none() {
+                format!("Successfully started {}, but program was interrupted", $y)
+            } else {
+                format!("Successfully started {}, but program returned error", $y)
+            }
+        };
+    }
+
     /// Shorthand method for executing a program.
     fn execute(params: &ArgMatches, config: Config, prog: &str) -> Result<(String, i32), Error> {
-        let mut args: Vec<String> = Vec::new();
-        if let Some(list) = params.get_many::<String>("ARGUMENTS") {
-            for i in list {
-                args.push(i.to_string());
-            }
-        }
+        let args: Vec<String> = parse_args!(params);
 
         match haxe_exec(args, config, Some(prog.to_string())) {
             Ok(output) => Ok((
-                if output.status.code().is_none() {
-                    format!("Successfully started {}, but program was interrupted", prog)
-                } else {
-                    format!("Successfully started {}, but program returned error", prog)
-                },
+                exec_message!(output.status.code(), prog),
                 output.status.code().unwrap_or(143),
             )),
             Err(e) => Err(e),
