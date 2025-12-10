@@ -1,6 +1,6 @@
 # mask-hx
 
-> *Generic [Haxe](https://haxe.org/) version manager*
+> _Generic [Haxe](https://haxe.org/) version manager_
 
 ## About
 
@@ -101,7 +101,7 @@ mask-hx switch 4.2.5
 This does a couple of things:
 
 1. The program checks if the specified version number is installed; if it is,
-  then continue
+   then continue
 2. A `.mask` file is created in the working directory if it doesn't exist
 3. The `.mask` file is overwritten to the specified version number
 
@@ -187,19 +187,19 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Tips and tricks
 
-* If you want to make sure that your setup is ready for developing on a
+- If you want to make sure that your setup is ready for developing on a
   project containing a `.mask` configuration, then you can use the `check`
   subcommand. It can check all three version mechanisms.
-* Including a `.mask` file in version control is especially useful when you
+- Including a `.mask` file in version control is especially useful when you
   and your team are using a remote repository. They can make sure that everyone
   is using the right Haxe version.
-* Custom configuration files are particularly useful for monorepos or similar
+- Custom configuration files are particularly useful for monorepos or similar
   that are designed to have each component support a different minimum Haxe
   version; one example would be a library using version 4.2.5 and the main
   application using 4.3.7. `mask-hx` can be configured on the fly to use
-  custom configuration files instead of the default by specifying the `config` 
+  custom configuration files instead of the default by specifying the `config`
   flag or using the `MASK_CONFIG` environment variable.
-* You can set up command-line aliases to `mask-hx`'s respective subcommands.
+- You can set up command-line aliases to `mask-hx`'s respective subcommands.
   If you're using shell scripts, then a few examples for each command are
   available in the `examples/` subfolder of the repository, supporting typical
   Bash. Alongside this, you gain the benefit of certain programs like
@@ -207,7 +207,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
   more importantly, seamless integration with other Haxe development tools;
   examples of such include IDEs, application plugins, and build tools like
   Make.
-* The program contains `libmask`, the main functionality behind most of the
+- The program contains `libmask`, the main functionality behind most of the
   work. `libmask` is a separate crate that can be used in other projects under
   the terms of the [MIT license](LICENSE), just like `mask-hx`.
 

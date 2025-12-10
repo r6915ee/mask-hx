@@ -19,11 +19,11 @@ The Nix shell will automatically drop in most tools necessary for development.
 For other systems, the following programs should be available for efficient
 development:
 
-* [The Rust toolchain](https://rust-lang.org/), including **rust-analyzer**
-* [pre-commit](https://pre-commit.com/)
-* [just](https://just.systems/)
-* [just-formatter](https://github.com/eli-yip/just-formatter)
-* [just-lsp](https://github.com/terror/just-lsp)
+- [The Rust toolchain](https://rust-lang.org/), including **rust-analyzer**
+- [pre-commit](https://pre-commit.com/)
+- [just](https://just.systems/)
+- [just-formatter](https://github.com/eli-yip/just-formatter)
+- [just-lsp](https://github.com/terror/just-lsp)
 
 All dependencies of these programs should be available as well, including Haxe
 itself. Both the Nix shell and installing the programs manually are valid
