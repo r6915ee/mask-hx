@@ -75,6 +75,13 @@ subfolder, and so does the standard library. Installations should preferrably
 be portable and not managed by an external program, examples of such kinds of
 programs being Windows installers and package managers.
 
+All of the Haxe versions installed can be easily listed using the `list`
+subcommand:
+
+```sh
+mask-hx list
+```
+
 ### Version Usage
 
 Right when you view the help message, a particular flag stands out: the
@@ -134,7 +141,7 @@ All three of these methods are valid **version reference** methods in the
 terminology of `mask-hx`, which allow storing the version number to be used
 for later.
 
-### Invoking the compiler and Haxelib
+### Invoking Programs
 
 Invoking the compiler can be done by using the `exec` subcommand:
 
@@ -155,9 +162,29 @@ ones, allowing certain programs like [Lime](https://lime.openfl.org/)'s
 project system and the [hxp](https://github.com/openfl/hxp) build script system
 to function properly.
 
+One uncommon, but useful subcommand is the `run` subcommand. This works almost
+the same as the prior two execution subcommands, but can operate on any program
+that is feed to it as an argument. It's useful for avoiding wrapper scripts,
+because it maintains the same `PATH` modification logic of the other two
+execution subcommands that preserves speed in the long run, but may cause some
+extra downtime for switching versions, since the environment doesn't update
+alongside the version used.
+
+```sh
+mask-hx run bash
+```
+
+One interesting thing to note about this subcommand is that it sets the
+`MASK_PATH_OVERRIDE` environment variable for the program being run alongside
+the `PATH`. This environment variable specifies the Haxe version being used at
+the time of performing the `run` subcommand. Although it isn't initially
+useful, any further child processes will be able to access this environment
+variable to determine the current context of the environment that `mask-hx`
+created.
+
 > [!NOTE]
-> Every argument after `exec` and `lib` will typically be absorbed by the
-> program being invoked!
+> Every execution subcommand (`exec`, `lib`, and `run`) all absorb any further
+> arguments given to them!
 
 ## Development
 
