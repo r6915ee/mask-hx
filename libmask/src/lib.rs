@@ -87,21 +87,29 @@ use std::process::{Command, Output, Stdio};
 pub struct HaxeVersion(pub String);
 
 impl HaxeVersion {
-    /// Checks if a Haxe version exists, and returns its path.
+    /// Gets the directory where all Haxe versions are stored without performing any checking.
     ///
-    /// This is used internally by `libmask` for methods that cannot use `self`.
-    pub fn get_version(path: &str) -> Result<PathBuf, Error> {
+    /// Although this method is not typically used in most operations, it's useful
+    /// for simple tasks like listing Haxe versions.
+    pub fn get_haxe_installations() -> Result<PathBuf, Error> {
         let home: Option<PathBuf> = std::env::home_dir();
-
         if let Some(mut buffer) = home {
             buffer.push(".haxe");
-            buffer.push(path);
             return Ok(buffer);
         }
         Err(Error::new(
             ErrorKind::NotFound,
             "Home directory not accessible",
         ))
+    }
+
+    /// Checks if a Haxe version exists, and returns its path.
+    ///
+    /// This is used internally by `libmask` for methods that cannot use `self`.
+    pub fn get_version(path: &str) -> Result<PathBuf, Error> {
+        let mut buffer: PathBuf = HaxeVersion::get_haxe_installations()?;
+        buffer.push(path);
+        Ok(buffer)
     }
 
     /// Gets a path to the current Haxe version.
