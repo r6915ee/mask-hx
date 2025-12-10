@@ -226,8 +226,8 @@ impl Default for Config {
 
 /// Attempts to create a [Command] that has its `PATH` prepended with a [Config]'s version directory.
 ///
-/// This method can be independently used in order to run custom commands, or to avoid
-/// customize how the [Command] should run.
+/// This method can be independently used in order to run custom commands, or
+/// to customize how the [Command] should run.
 pub fn create_patched_cmd(
     args: Vec<String>,
     config: Config,
