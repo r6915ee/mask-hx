@@ -222,6 +222,36 @@ impl Default for Config {
     }
 }
 
+/// Attempts to create a [Command] that has its `PATH` prepended with a [Config]'s version directory.
+///
+/// This method can be independently used in order to run custom commands, or to avoid
+/// customize how the [Command] should run.
+pub fn create_patched_cmd(
+    args: Vec<String>,
+    config: Config,
+    prog: PathBuf,
+) -> Result<Command, Error> {
+    let mut cmd: Command = Command::new(prog);
+    let path: PathBuf = config.0.get_path()?;
+    cmd.args(args).env(
+        "PATH",
+        if cfg!(windows) {
+            format!(
+                "{};{}",
+                path.display(),
+                env::var("PATH").unwrap_or("".to_string())
+            )
+        } else {
+            format!(
+                "{}:{}",
+                path.display(),
+                env::var("PATH").unwrap_or("".to_string())
+            )
+        },
+    );
+    Ok(cmd)
+}
+
 /// Executes a specified program under a version directory.
 ///
 /// `libmask` will check ahead of time if the program specified is available as
@@ -249,28 +279,11 @@ pub fn haxe_exec(args: Vec<String>, config: Config, prog: Option<String>) -> Res
                     ),
                 ))
             } else {
-                Ok(Command::new(prog_buf)
-                    .args(args)
-                    .env(
-                        "PATH",
-                        if cfg!(windows) {
-                            format!(
-                                "{};{}",
-                                buf.display(),
-                                env::var("PATH").unwrap_or("".to_string())
-                            )
-                        } else {
-                            format!(
-                                "{}:{}",
-                                buf.display(),
-                                env::var("PATH").unwrap_or("".to_string())
-                            )
-                        },
-                    )
+                create_patched_cmd(args, config, prog_buf)?
                     .stdin(Stdio::inherit())
                     .stdout(Stdio::inherit())
                     .stderr(Stdio::inherit())
-                    .output()?)
+                    .output()
             }
         }
         Err(e) => Err(e),
