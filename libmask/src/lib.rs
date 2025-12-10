@@ -83,6 +83,7 @@ use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
+#[derive(Clone)]
 /// Basic structure that details [Haxe](https://haxe.org/) versions.
 pub struct HaxeVersion(pub String);
 
@@ -154,6 +155,7 @@ impl HaxeVersion {
     }
 }
 
+#[derive(Clone)]
 /// A basic representation of a `libmask` configuration.
 pub struct Config(pub HaxeVersion);
 
