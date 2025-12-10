@@ -253,11 +253,19 @@ pub fn haxe_exec(args: Vec<String>, config: Config, prog: Option<String>) -> Res
                     .args(args)
                     .env(
                         "PATH",
-                        format!(
-                            "{}:{}",
-                            buf.display(),
-                            env::var("PATH").unwrap_or("".to_string())
-                        ),
+                        if cfg!(windows) {
+                            format!(
+                                "{};{}",
+                                buf.display(),
+                                env::var("PATH").unwrap_or("".to_string())
+                            )
+                        } else {
+                            format!(
+                                "{}:{}",
+                                buf.display(),
+                                env::var("PATH").unwrap_or("".to_string())
+                            )
+                        },
                     )
                     .stdin(Stdio::inherit())
                     .stdout(Stdio::inherit())
