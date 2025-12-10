@@ -7,7 +7,12 @@
 //! aims to simplify the process of version management with
 //! [Haxe](https://haxe.org).
 
-use std::{borrow::Cow, env, io::Error, process::exit};
+use std::{
+    borrow::Cow,
+    env,
+    io::Error,
+    process::{Stdio, exit},
+};
 
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
 
@@ -81,6 +86,27 @@ fn handle_commands() -> ArgMatches {
                 .disable_help_flag(true)
                 .arg(
                     arg!([ARGUMENTS]... "Specify the arguments to pass to Haxelib")
+                        .value_delimiter(' ')
+                        .allow_hyphen_values(true)
+                        .trailing_var_arg(true),
+                ),
+        )
+        .subcommand(
+            Command::new("run")
+                .about("Execute a program using an isolated Haxe version")
+                .long_about(
+                    "This acts similar to the exec subcommand, except it operates \
+                    on a program specified by the user. \n\n\
+                    A special piece of behavior associated with this subcommand is that \
+                    the executed program becomes informed of being within a running mask-hx \
+                    context through the $MASK_PATH_OVERRIDE environment variable that's \
+                    set to the current Haxe version. This is primarily useful for prompts \
+                    that can display metadata about the program's current state.",
+                )
+                .disable_help_flag(true)
+                .arg(arg!(<PROGRAM> "The program to execute"))
+                .arg(
+                    arg!([ARGUMENTS]... "Specify the arguments to pass to the program")
                         .value_delimiter(' ')
                         .allow_hyphen_values(true)
                         .trailing_var_arg(true),
@@ -239,6 +265,34 @@ fn main() {
         };
         *message = results.0;
         exit_code = results.1;
+    } else if let Some(params) = matches.subcommand_matches("run") {
+        check_config_validity(&config);
+        let args: Vec<String> = parse_args!(params);
+        let prog: &String = params.get_one::<String>("PROGRAM").unwrap();
+        match create_patched_cmd(args, config.clone().unwrap(), prog.into()) {
+            Ok(mut cmd) => {
+                match cmd
+                    .env("MASK_PATH_OVERRIDE", config.unwrap().0.0)
+                    .stdin(Stdio::inherit())
+                    .stdout(Stdio::inherit())
+                    .stderr(Stdio::inherit())
+                    .output()
+                {
+                    Ok(output) => {
+                        *message = exec_message!(output.status.code(), prog);
+                        exit_code = output.status.code().unwrap_or(143);
+                    }
+                    Err(e) => {
+                        *message = e.to_string();
+                        exit_code = 1;
+                    }
+                }
+            }
+            Err(e) => {
+                *message = e.to_string();
+                exit_code = 1;
+            }
+        }
     };
 
     if force_exit_log {
