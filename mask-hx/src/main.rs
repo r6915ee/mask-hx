@@ -10,8 +10,11 @@
 use std::{
     borrow::Cow,
     env,
+    fs::read_dir,
     io::Error,
+    path::PathBuf,
     process::{Stdio, exit},
+    slice::Iter,
 };
 
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
@@ -41,6 +44,14 @@ fn handle_commands() -> ArgMatches {
                     if the standard library is present as well.\n\n\
                     If the explicit argument isn't used, then the .mask configuration \
                     will be read.",
+                ),
+        )
+        .subcommand(
+            Command::new("list")
+                .about("List all of the installed Haxe versions")
+                .long_about(
+                    "This lists every Haxe version available in the Haxe \
+                    versions directory.",
                 ),
         )
         .subcommand(
@@ -217,6 +228,51 @@ fn main() {
                 exit_code = 0;
                 force_exit_log = true;
             }
+            Err(e) => {
+                *message = e.to_string();
+                exit_code = 2;
+            }
+        }
+    } else if matches.subcommand_matches("list").is_some() {
+        match HaxeVersion::get_haxe_installations() {
+            Ok(path) => match read_dir(path) {
+                Ok(dir) => {
+                    let mut list: String = String::with_capacity(128);
+
+                    exit_code = 0;
+
+                    /// Tracks the list when listing all Haxe versions.
+                    macro_rules! track_list {
+                        ( $x: expr ) => {
+                            if let Some(data) = $x.to_str() {
+                                list.push_str(data);
+                            } else {
+                                *message = "Some directories were skipped because they used non-UTF-8 paths".into();
+                                exit_code = 0;
+                                force_exit_log = true;
+                            }
+                        };
+                    }
+
+                    let parsed_dir: Vec<PathBuf> = dir
+                        .map(|res| res.map(|e| e.path()))
+                        .collect::<Result<Vec<_>, Error>>()
+                        .unwrap_or(vec![]);
+                    let mut iter: Iter<'_, PathBuf> = parsed_dir.iter();
+                    if let Some(first) = iter.next() {
+                        track_list!(first);
+                    }
+                    for next in iter {
+                        list.push('\n');
+                        track_list!(next);
+                    }
+                    println!("{}", list);
+                }
+                Err(e) => {
+                    *message = e.to_string();
+                    exit_code = 2;
+                }
+            },
             Err(e) => {
                 *message = e.to_string();
                 exit_code = 2;
