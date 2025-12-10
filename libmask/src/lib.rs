@@ -83,7 +83,7 @@ use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
-/// Basic structure that details a [Haxe](https://haxe.org/) version.
+/// Basic structure that details [Haxe](https://haxe.org/) versions.
 pub struct HaxeVersion(pub String);
 
 impl HaxeVersion {
