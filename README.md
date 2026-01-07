@@ -4,6 +4,12 @@
 
 ## About
 
+> [!WARNING]
+> `mask-hx` is no longer maintained, with work being put into its successor,
+> [`verune`](https://crates.io/crates/verune/). `verune` features support for a
+> theoretically near-endless amount of runtimes, better overall structure, and
+> more.
+
 `mask-hx` comes from the fact that the [Haxe](https://haxe.org/) toolkit
 has versions that differ substantially, especially in syntax, even in minor
 releases. `mask-hx` aims to reduce the amount of struggle needed when
